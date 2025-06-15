@@ -12,6 +12,11 @@ const TaxiDriverApp = () => {
   const [acceptTimer, setAcceptTimer] = useState(15);
   const [isRegistered, setIsRegistered] = useState(true);
   const [workingHours, setWorkingHours] = useState({ enabled: true, from: '08:00', to: '20:00' });
+  const [darkMode, setDarkMode] = useState(() => {
+    // Automatyczna detekcja czasu - tryb ciemny między 20:00 a 06:00
+    const hour = new Date().getHours();
+    return hour >= 20 || hour < 6;
+  });
   const [driverProfile, setDriverProfile] = useState({
     name: 'Jan Novák',
     phone: '+420 777 123 456',
@@ -22,6 +27,42 @@ const TaxiDriverApp = () => {
     carType: 'standard',
     photo: null
   });
+
+  // Kolory motywów
+  const theme = {
+    light: {
+      bg: 'bg-gray-50',
+      cardBg: 'bg-white',
+      textPrimary: 'text-gray-800',
+      textSecondary: 'text-gray-600',
+      textMuted: 'text-gray-500',
+      border: 'border-gray-100',
+      borderStrong: 'border-gray-200',
+      shadow: 'shadow-sm',
+      shadowHover: 'shadow-md',
+      statusBar: 'bg-gray-900',
+      navBg: 'bg-white',
+      navBorder: 'border-gray-100',
+      inputBg: 'bg-gray-50'
+    },
+    dark: {
+      bg: 'bg-gray-900',
+      cardBg: 'bg-gray-800',
+      textPrimary: 'text-gray-100',
+      textSecondary: 'text-gray-300',
+      textMuted: 'text-gray-400',
+      border: 'border-gray-700',
+      borderStrong: 'border-gray-600',
+      shadow: 'shadow-lg shadow-black/20',
+      shadowHover: 'shadow-xl shadow-black/30',
+      statusBar: 'bg-black',
+      navBg: 'bg-gray-800',
+      navBorder: 'border-gray-700',
+      inputBg: 'bg-gray-700'
+    }
+  };
+
+  const currentTheme = darkMode ? theme.dark : theme.light;
 
   // Simulace nové objednávky
   useEffect(() => {
@@ -73,9 +114,9 @@ const TaxiDriverApp = () => {
     }
   };
 
-  // Hlavní obrazovka
+  // Główna obrazovka
   const HomeScreen = () => (
-    <div className="flex-1 flex flex-col bg-gray-50">
+    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-20 overflow-y-auto`}>
       {/* Status bar s gradientem */}
       <div className={`relative overflow-hidden transition-all duration-500 ${
         isOnline 
@@ -123,19 +164,33 @@ const TaxiDriverApp = () => {
 
       {/* Dnešní statistiky s card efektem */}
       <div className="p-4">
-        <h3 className="text-gray-700 text-sm font-semibold mb-3">Dnešní přehled</h3>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className={`${currentTheme.textSecondary} text-sm font-semibold`}>Dnešní přehled</h3>
+          {/* Przełącznik trybu ciemnego/jasnego */}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`p-2 rounded-xl transition-all duration-300 ${
+              darkMode 
+                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+            title={darkMode ? 'Przełącz na tryb dzienny' : 'Przełącz na tryb nocny'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl opacity-75 group-hover:opacity-100 transition-opacity blur-xl"></div>
-            <div className="relative bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100">
+            <div className={`relative ${currentTheme.cardBg} p-4 rounded-xl ${currentTheme.shadowHover} transition-all duration-300 border border-blue-100 ${darkMode ? 'border-blue-800' : 'border-blue-100'}`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                     {todayEarnings.toLocaleString()} 
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">Výdělek Kč </p>
+                  <p className={`text-sm ${currentTheme.textSecondary} mt-1`}>Výdělek Kč</p>
                 </div>
-                <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg">
+                <div className={`p-3 bg-gradient-to-br ${darkMode ? 'from-blue-800 to-blue-900' : 'from-blue-100 to-blue-200'} rounded-lg`}>
                   <DollarSign className="text-blue-600" size={24} />
                 </div>
               </div>
@@ -144,15 +199,15 @@ const TaxiDriverApp = () => {
           
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl opacity-75 group-hover:opacity-100 transition-opacity blur-xl"></div>
-            <div className="relative bg-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-100">
+            <div className={`relative ${currentTheme.cardBg} p-4 rounded-xl ${currentTheme.shadowHover} transition-all duration-300 border ${darkMode ? 'border-purple-800' : 'border-purple-100'}`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">
                     {todayRides}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1">Jízdy</p>
+                  <p className={`text-sm ${currentTheme.textSecondary} mt-1`}>Jízdy</p>
                 </div>
-                <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg">
+                <div className={`p-3 bg-gradient-to-br ${darkMode ? 'from-purple-800 to-purple-900' : 'from-purple-100 to-purple-200'} rounded-lg`}>
                   <TrendingUp className="text-purple-600" size={24} />
                 </div>
               </div>
@@ -163,21 +218,21 @@ const TaxiDriverApp = () => {
 
       {/* Info o autě s moderním designem */}
       <div className="mx-4 mb-4">
-        <div className="bg-white rounded-xl shadow-sm p-3 border border-gray-100">
+        <div className={`${currentTheme.cardBg} rounded-xl ${currentTheme.shadow} p-3 ${currentTheme.border}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="p-2 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mr-3">
-                <Car className="text-gray-700" size={20} />
+              <div className={`p-2 bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-100 to-gray-200'} rounded-lg mr-3`}>
+                <Car className={`${currentTheme.textPrimary}`} size={20} />
               </div>
               <div>
-                <p className="font-semibold text-gray-800">{driverProfile.carModel}</p>
-                <p className="text-sm text-gray-500">{driverProfile.spz}</p>
+                <p className={`font-semibold ${currentTheme.textPrimary}`}>{driverProfile.carModel}</p>
+                <p className={`text-sm ${currentTheme.textMuted}`}>{driverProfile.spz}</p>
               </div>
             </div>
             <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
               driverProfile.carType === 'minivan' 
-                ? 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700' 
-                : 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700'
+                ? `bg-gradient-to-r ${darkMode ? 'from-purple-800 to-purple-900 text-purple-300' : 'from-purple-100 to-purple-200 text-purple-700'}` 
+                : `bg-gradient-to-r ${darkMode ? 'from-blue-800 to-blue-900 text-blue-300' : 'from-blue-100 to-blue-200 text-blue-700'}`
             }`}>
               {driverProfile.carType === 'minivan' ? 'Minivan' : 'Standard'}
             </span>
@@ -185,35 +240,63 @@ const TaxiDriverApp = () => {
         </div>
       </div>
 
-      {/* Mapa s overlay efektem */}
-      <div className="flex-1 relative bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full filter blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-green-500 rounded-full filter blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="p-4 bg-white rounded-2xl shadow-lg mb-4">
-              <MapPin size={48} className="text-gray-600 mx-auto" />
-            </div>
-            <p className="text-gray-700 font-semibold">Mapa s partnerskými hotely</p>
-            {isOnline && (
-              <div className="mt-4 flex items-center justify-center space-x-2">
-                <div className="relative">
-                  <div className="w-4 h-4 bg-green-500 rounded-full animate-ping absolute"></div>
-                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                </div>
-                <span className="text-sm text-gray-700 font-medium">Vaše poloha</span>
+      {/* Seznam dostupných objednávek nebo poslední aktivity */}
+      <div className="flex-1 overflow-y-auto">
+        {isOnline ? (
+          <div className="p-4">
+            <h3 className={`${currentTheme.textSecondary} text-sm font-semibold mb-3`}>Dostupné objednávky</h3>
+            {/* Pokud nejsou žádné objednávky */}
+            <div className={`${currentTheme.cardBg} rounded-2xl ${currentTheme.shadow} p-8 text-center`}>
+              <div className={`p-4 bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-100 to-gray-200'} rounded-2xl mb-4 w-fit mx-auto`}>
+                <Clock size={48} className={`${currentTheme.textMuted}`} />
               </div>
-            )}
+              <p className={`${currentTheme.textPrimary} font-semibold mb-2`}>Čekání na objednávky</p>
+              <p className={`text-sm ${currentTheme.textMuted}`}>Nové objednávky se zobrazí automaticky</p>
+              {!hasActiveRide && (
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <div className="relative">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-ping absolute"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-green-600 font-medium">Online a připraven</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="p-4">
+            <h3 className={`${currentTheme.textSecondary} text-sm font-semibold mb-3`}>Poslední jízdy</h3>
+            {/* Zobrazit poslední 3 jízdy */}
+            <div className="space-y-3">
+              {[
+                { time: '14:32', hotel: 'Augustine', to: 'Letiště', price: 700 },
+                { time: '12:15', hotel: 'Hilton', to: 'Hlavní nádraží', price: 280 },
+                { time: '10:45', hotel: 'Four Seasons', to: 'Václavské náměstí', price: 180 }
+              ].map((ride, index) => (
+                <div key={index} className={`${currentTheme.cardBg} rounded-xl ${currentTheme.shadow} hover:${currentTheme.shadowHover} p-4 transition-all duration-300`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`font-semibold ${currentTheme.textPrimary}`}>{ride.hotel} → {ride.to}</p>
+                      <p className={`text-sm ${currentTheme.textMuted}`}>Dnes {ride.time}</p>
+                    </div>
+                    <p className="font-bold text-green-600">{ride.price} Kč</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Motivační zpráva */}
+            <div className={`mt-4 bg-gradient-to-r ${darkMode ? 'from-blue-900 to-indigo-900' : 'from-blue-50 to-indigo-50'} rounded-xl p-4 border ${darkMode ? 'border-blue-800' : 'border-blue-100'}`}>
+              <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'} font-medium text-center`}>
+                Začněte vydělávat! Přepněte se do režimu ONLINE
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Rychlé akce s hover efekty */}
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className={`p-4 ${currentTheme.cardBg} border-t ${currentTheme.border}`}>
         <div className="grid grid-cols-3 gap-3">
           {[
             { icon: Clock, label: 'Přestávka' },
@@ -222,12 +305,12 @@ const TaxiDriverApp = () => {
           ].map((item, index) => (
             <button
               key={index}
-              className="group p-3 text-center rounded-xl hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100 transition-all duration-300"
+              className={`group p-3 text-center rounded-xl hover:bg-gradient-to-br ${darkMode ? 'hover:from-gray-700 hover:to-gray-800' : 'hover:from-gray-50 hover:to-gray-100'} transition-all duration-300`}
             >
-              <div className="p-2 bg-gray-100 rounded-lg mx-auto w-fit group-hover:scale-110 transition-transform duration-300">
-                <item.icon className="text-gray-600" size={20} />
+              <div className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg mx-auto w-fit group-hover:scale-110 transition-transform duration-300`}>
+                <item.icon className={`${currentTheme.textSecondary}`} size={20} />
               </div>
-              <span className="text-sm text-gray-700 mt-2 block font-medium">{item.label}</span>
+              <span className={`text-sm ${currentTheme.textPrimary} mt-2 block font-medium`}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -239,7 +322,7 @@ const TaxiDriverApp = () => {
   const NewRequestScreen = () => (
     <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col animate-fadeIn">
       <div className="flex-1 flex flex-col justify-center p-6">
-        <div className="bg-white rounded-3xl overflow-hidden shadow-2xl animate-slideUp">
+        <div className={`${currentTheme.cardBg} rounded-3xl overflow-hidden shadow-2xl animate-slideUp`}>
           {/* Timer s pulzujícím efektem */}
           <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
             <div className="absolute inset-0 bg-white opacity-10"></div>
@@ -256,15 +339,15 @@ const TaxiDriverApp = () => {
           </div>
 
           {/* Hotel info s gradientem */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 border-b border-blue-100">
+          <div className={`bg-gradient-to-r ${darkMode ? 'from-blue-900 to-indigo-900' : 'from-blue-50 to-indigo-50'} px-6 py-3 border-b ${darkMode ? 'border-blue-800' : 'border-blue-100'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                <div className={`p-2 ${currentTheme.cardBg} rounded-lg mr-3 ${currentTheme.shadow}`}>
                   <Users className="text-blue-600" size={20} />
                 </div>
-                <span className="font-bold text-gray-800">Hotel Augustine</span>
+                <span className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</span>
               </div>
-              <span className="px-3 py-1 bg-white rounded-full text-sm font-bold text-blue-600 shadow-sm">AUG</span>
+              <span className={`px-3 py-1 ${currentTheme.cardBg} rounded-full text-sm font-bold text-blue-600 ${currentTheme.shadow}`}>AUG</span>
             </div>
           </div>
 
@@ -276,15 +359,15 @@ const TaxiDriverApp = () => {
                   <MapPin size={20} className="text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-800">Hotel Augustine</p>
-                  <p className="text-sm text-gray-600">Letenská 12/33, Praha 1</p>
+                  <p className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</p>
+                  <p className={`text-sm ${currentTheme.textSecondary}`}>Letenská 12/33, Praha 1</p>
                 </div>
               </div>
               
               <div className="ml-12 mb-3">
                 <div className="flex items-center">
                   <div className="w-0.5 h-8 bg-gradient-to-b from-green-400 to-red-400 mr-3"></div>
-                  <p className="text-sm text-gray-500">18.2 km • ~25 min</p>
+                  <p className={`text-sm ${currentTheme.textMuted}`}>18.2 km • ~25 min</p>
                 </div>
               </div>
               
@@ -293,23 +376,23 @@ const TaxiDriverApp = () => {
                   <Plane size={20} className="text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-800">Letiště Václava Havla</p>
-                  <p className="text-sm text-gray-600">Terminál 2, Odlety</p>
+                  <p className={`font-bold ${currentTheme.textPrimary}`}>Letiště Václava Havla</p>
+                  <p className={`text-sm ${currentTheme.textSecondary}`}>Terminál 2, Odlety</p>
                 </div>
               </div>
             </div>
 
             {/* Detaily ceny s gradientem */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl mb-4 border border-gray-200">
+            <div className={`bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-50 to-gray-100'} p-4 rounded-xl mb-4 border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Celková cena:</p>
-                  <p className="text-3xl font-bold text-gray-800">900 Kč</p>
+                  <p className={`text-sm ${currentTheme.textSecondary} mb-1`}>Celková cena:</p>
+                  <p className={`text-3xl font-bold ${currentTheme.textPrimary}`}>900 Kč</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Váš příjem:</p>
+                  <p className={`text-sm ${currentTheme.textSecondary} mb-1`}>Váš příjem:</p>
                   <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">700 Kč</p>
-                  <p className="text-xs text-gray-500 mt-1">po odečtení provize</p>
+                  <p className={`text-xs ${currentTheme.textMuted} mt-1`}>po odečtení provize</p>
                 </div>
               </div>
             </div>
@@ -321,8 +404,8 @@ const TaxiDriverApp = () => {
                 { icon: Clock, text: 'Okamžitě' },
                 { icon: FileText, text: 'Přepravní smlouva bude vygenerována' }
               ].map((item, index) => (
-                <div key={index} className="flex items-center text-gray-600 text-sm">
-                  <item.icon size={16} className="mr-2 text-gray-400" />
+                <div key={index} className={`flex items-center ${currentTheme.textSecondary} text-sm`}>
+                  <item.icon size={16} className={`mr-2 ${currentTheme.textMuted}`} />
                   <span>{item.text}</span>
                 </div>
               ))}
@@ -330,7 +413,7 @@ const TaxiDriverApp = () => {
           </div>
 
           {/* Tlačítka s hover efekty */}
-          <div className="flex p-4 space-x-3 bg-gradient-to-t from-gray-100 to-gray-50">
+          <div className={`flex p-4 space-x-3 bg-gradient-to-t ${darkMode ? 'from-gray-800 to-gray-700' : 'from-gray-100 to-gray-50'}`}>
             <button
               onClick={rejectRide}
               className="flex-1 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
@@ -353,7 +436,7 @@ const TaxiDriverApp = () => {
 
   // Obrazovka aktivní jízdy
   const ActiveRideScreen = () => (
-    <div className="flex-1 flex flex-col bg-gray-50">
+    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-20 overflow-y-auto`}>
       {/* Status jízdy s gradientem */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 shadow-lg">
         <div className="flex justify-between items-center">
@@ -375,13 +458,13 @@ const TaxiDriverApp = () => {
       </div>
 
       {/* Hotel a číslo objednávky */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 flex justify-between items-center border-b border-blue-100">
-        <span className="font-bold text-gray-800">Hotel Augustine</span>
-        <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">Objednávka #2847</span>
+      <div className={`bg-gradient-to-r ${darkMode ? 'from-blue-900 to-indigo-900' : 'from-blue-50 to-indigo-50'} px-4 py-3 flex justify-between items-center border-b ${darkMode ? 'border-blue-800' : 'border-blue-100'}`}>
+        <span className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</span>
+        <span className={`text-sm ${currentTheme.textSecondary} ${currentTheme.cardBg} px-3 py-1 rounded-full`}>Objednávka #2847</span>
       </div>
 
       {/* Informace o trase s moderním designem */}
-      <div className="bg-white m-4 rounded-2xl shadow-sm p-4">
+      <div className={`${currentTheme.cardBg} m-4 rounded-2xl ${currentTheme.shadow} p-4`}>
         <div className="space-y-4">
           <div className="flex items-start">
             <div className="relative mr-3">
@@ -393,11 +476,11 @@ const TaxiDriverApp = () => {
               )}
             </div>
             <div className="flex-1">
-              <p className="font-bold text-gray-800">Hotel Augustine</p>
-              <p className="text-sm text-gray-600">Letenská 12/33, Praha 1</p>
+              <p className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</p>
+              <p className={`text-sm ${currentTheme.textSecondary}`}>Letenská 12/33, Praha 1</p>
               {rideStatus === 'waiting' && (
-                <div className="mt-2 bg-blue-50 px-3 py-1 rounded-lg inline-block">
-                  <p className="text-xs text-blue-600 font-semibold">← Jeďte sem (3.5 km • 8 min)</p>
+                <div className={`mt-2 ${darkMode ? 'bg-blue-900' : 'bg-blue-50'} px-3 py-1 rounded-lg inline-block`}>
+                  <p className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'} font-semibold`}>← Jeďte sem (3.5 km • 8 min)</p>
                 </div>
               )}
             </div>
@@ -413,11 +496,11 @@ const TaxiDriverApp = () => {
               )}
             </div>
             <div className="flex-1">
-              <p className="font-bold text-gray-800">Letiště Václava Havla</p>
-              <p className="text-sm text-gray-600">Terminál 2, Odlety</p>
+              <p className={`font-bold ${currentTheme.textPrimary}`}>Letiště Václava Havla</p>
+              <p className={`text-sm ${currentTheme.textSecondary}`}>Terminál 2, Odlety</p>
               {rideStatus === 'in_progress' && (
-                <div className="mt-2 bg-blue-50 px-3 py-1 rounded-lg inline-block">
-                  <p className="text-xs text-blue-600 font-semibold">← Cíl cesty (18.2 km • 22 min)</p>
+                <div className={`mt-2 ${darkMode ? 'bg-blue-900' : 'bg-blue-50'} px-3 py-1 rounded-lg inline-block`}>
+                  <p className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'} font-semibold`}>← Cíl cesty (18.2 km • 22 min)</p>
                 </div>
               )}
             </div>
@@ -425,22 +508,22 @@ const TaxiDriverApp = () => {
         </div>
 
         {/* Údaje cestujícího */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className={`mt-4 pt-4 border-t ${currentTheme.border}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="p-2 bg-gray-100 rounded-lg mr-3">
-                <User className="text-gray-600" size={20} />
+              <div className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-lg mr-3`}>
+                <User className={`${currentTheme.textSecondary}`} size={20} />
               </div>
               <div>
-                <p className="font-bold text-gray-800">Recepce Augustine</p>
-                <p className="text-sm text-gray-600">Pokoj 237</p>
+                <p className={`font-bold ${currentTheme.textPrimary}`}>Recepce Augustine</p>
+                <p className={`text-sm ${currentTheme.textSecondary}`}>Pokoj 237</p>
               </div>
             </div>
             <div className="flex space-x-2">
-              <button className="p-3 bg-gradient-to-br from-green-100 to-green-200 text-green-700 rounded-xl hover:shadow-md transition-all duration-300">
+              <button className={`p-3 bg-gradient-to-br ${darkMode ? 'from-green-800 to-green-900 text-green-300' : 'from-green-100 to-green-200 text-green-700'} rounded-xl hover:${currentTheme.shadowHover} transition-all duration-300`}>
                 <Phone size={20} />
               </button>
-              <button className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 rounded-xl hover:shadow-md transition-all duration-300">
+              <button className={`p-3 bg-gradient-to-br ${darkMode ? 'from-blue-800 to-blue-900 text-blue-300' : 'from-blue-100 to-blue-200 text-blue-700'} rounded-xl hover:${currentTheme.shadowHover} transition-all duration-300`}>
                 <Navigation size={20} />
               </button>
             </div>
@@ -449,18 +532,18 @@ const TaxiDriverApp = () => {
       </div>
 
       {/* Mapa */}
-      <div className="flex-1 bg-gradient-to-br from-gray-100 to-gray-200 relative mx-4 mb-4 rounded-2xl overflow-hidden">
+      <div className={`flex-1 bg-gradient-to-br ${darkMode ? 'from-gray-800 to-gray-900' : 'from-gray-100 to-gray-200'} relative mx-4 mb-4 rounded-2xl overflow-hidden`}>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="p-4 bg-white rounded-2xl shadow-lg mb-4">
+            <div className={`p-4 ${currentTheme.cardBg} rounded-2xl ${currentTheme.shadowHover} mb-4`}>
               <Navigation size={48} className="text-blue-600 mx-auto" />
             </div>
-            <p className="text-gray-700 font-bold mb-4">GPS Navigace</p>
+            <p className={`${currentTheme.textPrimary} font-bold mb-4`}>GPS Navigace</p>
             <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold flex items-center mx-auto shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
               <Navigation className="mr-2" size={20} />
               Otevřít v Google Maps
             </button>
-            <p className="text-sm text-gray-600 mt-4 font-medium">
+            <p className={`text-sm ${currentTheme.textSecondary} mt-4 font-medium`}>
               {rideStatus === 'waiting' && 'Do hotelu: 3.5 km • 8 min'}
               {rideStatus === 'picked_up' && 'Čekání na start'}
               {rideStatus === 'in_progress' && 'Na letiště: 18.2 km • 22 min'}
@@ -470,7 +553,7 @@ const TaxiDriverApp = () => {
       </div>
 
       {/* Tlačítko akce */}
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className={`p-4 ${currentTheme.cardBg} border-t ${currentTheme.border}`}>
         <button
           onClick={updateRideStatus}
           className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
@@ -489,14 +572,14 @@ const TaxiDriverApp = () => {
 
   // Historie s moderním designem
   const HistoryScreen = () => (
-    <div className="flex-1 bg-gray-50">
-      <div className="bg-white p-4 shadow-sm">
+    <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+      <div className={`${currentTheme.cardBg} p-4 ${currentTheme.shadow}`}>
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Historie jízd</h2>
-            <p className="text-sm text-gray-600 mt-1">Celkem jízd: 127</p>
+            <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Historie jízd</h2>
+            <p className={`text-sm ${currentTheme.textSecondary} mt-1`}>Celkem jízd: 127</p>
           </div>
-          <select className="px-4 py-2 border border-gray-200 rounded-xl text-sm bg-gray-50 font-medium">
+          <select className={`px-4 py-2 border ${currentTheme.borderStrong} rounded-xl text-sm ${currentTheme.inputBg} ${currentTheme.textPrimary} font-medium`}>
             <option>Tento týden</option>
             <option>Tento měsíc</option>
             <option>Vše</option>
@@ -540,22 +623,22 @@ const TaxiDriverApp = () => {
             invoiced: false 
           },
         ].map((ride, index) => (
-          <div key={index} className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+          <div key={index} className={`${currentTheme.cardBg} p-4 rounded-2xl ${currentTheme.shadow} hover:${currentTheme.shadowHover} transition-all duration-300`}>
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
                 <div className="flex items-center mb-2">
-                  <span className="text-xs bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 px-3 py-1 rounded-full font-semibold">{ride.hotel}</span>
+                  <span className={`text-xs bg-gradient-to-r ${darkMode ? 'from-blue-800 to-blue-900 text-blue-300' : 'from-blue-100 to-blue-200 text-blue-700'} px-3 py-1 rounded-full font-semibold`}>{ride.hotel}</span>
                   {ride.invoiced && (
-                    <span className="text-xs bg-gradient-to-r from-green-100 to-green-200 text-green-700 px-3 py-1 rounded-full ml-2 font-semibold">Faktura</span>
+                    <span className={`text-xs bg-gradient-to-r ${darkMode ? 'from-green-800 to-green-900 text-green-300' : 'from-green-100 to-green-200 text-green-700'} px-3 py-1 rounded-full ml-2 font-semibold`}>Faktura</span>
                   )}
                 </div>
-                <p className="font-bold text-gray-800">{ride.from}</p>
-                <p className="text-sm text-gray-600 mt-1">→ {ride.to}</p>
+                <p className={`font-bold ${currentTheme.textPrimary}`}>{ride.from}</p>
+                <p className={`text-sm ${currentTheme.textSecondary} mt-1`}>→ {ride.to}</p>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">{ride.price} Kč</p>
-                <p className="text-xs text-gray-500">z {ride.commission} Kč</p>
-                <p className="text-xs text-gray-400 mt-1">{ride.date} • {ride.time}</p>
+                <p className={`text-xs ${currentTheme.textMuted}`}>z {ride.commission} Kč</p>
+                <p className={`text-xs ${currentTheme.textMuted} mt-1`}>{ride.date} • {ride.time}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -565,13 +648,13 @@ const TaxiDriverApp = () => {
                     <Star
                       key={i}
                       size={16}
-                      className={i < ride.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+                      className={i < ride.rating ? 'text-yellow-400 fill-current' : `${darkMode ? 'text-gray-600' : 'text-gray-300'}`}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 ml-2 font-medium">({ride.rating}.0)</span>
+                <span className={`text-sm ${currentTheme.textSecondary} ml-2 font-medium`}>({ride.rating}.0)</span>
               </div>
-              <button className="text-blue-600 text-sm flex items-center font-semibold hover:text-blue-700 transition-colors">
+              <button className={`text-blue-600 text-sm flex items-center font-semibold hover:text-blue-700 transition-colors`}>
                 <FileText size={16} className="mr-1" />
                 Smlouva
               </button>
@@ -590,17 +673,39 @@ const TaxiDriverApp = () => {
 
   // Nastavení s moderním designem
   const SettingsScreen = () => (
-    <div className="flex-1 bg-gray-50">
-      <div className="bg-white p-4 shadow-sm">
-        <h2 className="text-2xl font-bold text-gray-800">Nastavení</h2>
+    <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+      <div className={`${currentTheme.cardBg} p-4 ${currentTheme.shadow}`}>
+        <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Nastavení</h2>
       </div>
 
       <div className="p-4 space-y-4">
+        {/* Tryb ciemny/jasny */}
+        <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Wygląd aplikacji</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <span className={`${currentTheme.textPrimary} font-medium`}>Tryb ciemny</span>
+              <p className={`text-sm ${currentTheme.textMuted} mt-1`}>
+                {darkMode ? 'Obecnie włączony' : 'Obecnie wyłączony'}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={darkMode}
+                onChange={(e) => setDarkMode(e.target.checked)}
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-600"></div>
+            </label>
+          </div>
+        </div>
+
         {/* Pracovní doba */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4">Pracovní doba</h3>
+        <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Pracovní doba</h3>
           <div className="flex items-center justify-between mb-4">
-            <span className="text-gray-700 font-medium">Pouze v pracovní době</span>
+            <span className={`${currentTheme.textPrimary} font-medium`}>Pouze v pracovní době</span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
                 type="checkbox" 
@@ -614,21 +719,21 @@ const TaxiDriverApp = () => {
           {workingHours.enabled && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-gray-600 font-medium">Od</label>
+                <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Od</label>
                 <input 
                   type="time" 
                   value={workingHours.from}
                   onChange={(e) => setWorkingHours({...workingHours, from: e.target.value})}
-                  className="w-full p-3 border border-gray-200 rounded-xl mt-1 bg-gray-50"
+                  className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-600 font-medium">Do</label>
+                <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Do</label>
                 <input 
                   type="time" 
                   value={workingHours.to}
                   onChange={(e) => setWorkingHours({...workingHours, to: e.target.value})}
-                  className="w-full p-3 border border-gray-200 rounded-xl mt-1 bg-gray-50"
+                  className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
                 />
               </div>
             </div>
@@ -636,8 +741,8 @@ const TaxiDriverApp = () => {
         </div>
 
         {/* Notifikace */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4">Notifikace</h3>
+        <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Notifikace</h3>
           <div className="space-y-3">
             {[
               { label: 'Zvukové upozornění', checked: true },
@@ -646,15 +751,15 @@ const TaxiDriverApp = () => {
             ].map((item, index) => (
               <label key={index} className="flex items-center cursor-pointer group">
                 <input type="checkbox" className="mr-3 w-5 h-5 text-blue-600 rounded border-gray-300" defaultChecked={item.checked} />
-                <span className="text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{item.label}</span>
+                <span className={`${currentTheme.textPrimary} font-medium group-hover:${currentTheme.textSecondary} transition-colors`}>{item.label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* Info o autě */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4">Údaje o vozidle</h3>
+        <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Údaje o vozidle</h3>
           <div className="space-y-3 text-sm">
             {[
               { label: 'Model:', value: driverProfile.carModel },
@@ -663,8 +768,8 @@ const TaxiDriverApp = () => {
               { label: 'Typ:', value: driverProfile.carType === 'minivan' ? 'Minivan' : 'Standard' }
             ].map((item, index) => (
               <div key={index} className="flex justify-between py-2">
-                <span className="text-gray-600">{item.label}</span>
-                <span className="font-semibold text-gray-800">{item.value}</span>
+                <span className={`${currentTheme.textSecondary}`}>{item.label}</span>
+                <span className={`font-semibold ${currentTheme.textPrimary}`}>{item.value}</span>
               </div>
             ))}
           </div>
@@ -674,9 +779,9 @@ const TaxiDriverApp = () => {
         </div>
 
         {/* Jazyk */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4">Jazyk aplikace</h3>
-          <select className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 font-medium">
+        <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Jazyk aplikace</h3>
+          <select className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl ${currentTheme.inputBg} ${currentTheme.textPrimary} font-medium`}>
             <option value="cs">Čeština</option>
             <option value="en">English</option>
           </select>
@@ -686,7 +791,7 @@ const TaxiDriverApp = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 max-w-md mx-auto">
+    <div className={`flex flex-col h-screen ${currentTheme.bg} max-w-md mx-auto relative`}>
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -705,7 +810,7 @@ const TaxiDriverApp = () => {
       `}</style>
 
       {/* Status bar */}
-      <div className="bg-gray-900 text-white px-4 py-2 text-xs flex justify-between">
+      <div className={`${currentTheme.statusBar} text-white px-4 py-2 text-xs flex justify-between`}>
         <span className="font-medium">9:41</span>
         <div className="flex space-x-1">
           <span>📶</span>
@@ -713,7 +818,7 @@ const TaxiDriverApp = () => {
         </div>
       </div>
 
-      {/* Hlavní obsah */}
+      {/* Główny obsah */}
       {currentScreen === 'home' && <HomeScreen />}
       {currentScreen === 'active-ride' && <ActiveRideScreen />}
       {currentScreen === 'history' && <HistoryScreen />}
@@ -722,36 +827,34 @@ const TaxiDriverApp = () => {
       {/* Zobrazit novou objednávku */}
       {showNewRequest && <NewRequestScreen />}
 
-      {/* Spodní navigace s moderním designem */}
-      {!hasActiveRide && (
-        <div className="bg-white border-t border-gray-100">
-          <div className="flex justify-around py-2">
-            {[
-              { icon: Home, label: 'Domů', screen: 'home' },
-              { icon: History, label: 'Historie', screen: 'history' },
-              { icon: Settings, label: 'Nastavení', screen: 'settings' },
-              { icon: User, label: 'Profil', screen: 'profile' }
-            ].map((item, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentScreen(item.screen)}
-                className={`flex flex-col items-center p-2 transition-all duration-300 ${
-                  currentScreen === item.screen 
-                    ? 'text-blue-600 scale-110' 
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                <item.icon size={24} strokeWidth={currentScreen === item.screen ? 2.5 : 2} />
-                <span className={`text-xs mt-1 ${
-                  currentScreen === item.screen ? 'font-semibold' : 'font-medium'
-                }`}>
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </div>
+      {/* Spodní navigace s fixed pozicí */}
+      <div className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto ${currentTheme.navBg} border-t ${currentTheme.navBorder} z-40`}>
+        <div className="flex justify-around py-2">
+          {[
+            { icon: Home, label: 'Domů', screen: 'home' },
+            { icon: History, label: 'Historie', screen: 'history' },
+            { icon: Settings, label: 'Nastavení', screen: 'settings' },
+            { icon: User, label: 'Profil', screen: 'profile' }
+          ].map((item, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentScreen(item.screen)}
+              className={`flex flex-col items-center p-2 transition-all duration-300 ${
+                currentScreen === item.screen 
+                  ? 'text-blue-600 scale-110' 
+                  : `${currentTheme.textMuted} hover:${currentTheme.textSecondary}`
+              }`}
+            >
+              <item.icon size={24} strokeWidth={currentScreen === item.screen ? 2.5 : 2} />
+              <span className={`text-xs mt-1 ${
+                currentScreen === item.screen ? 'font-semibold' : 'font-medium'
+              }`}>
+                {item.label}
+              </span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
