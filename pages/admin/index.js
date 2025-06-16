@@ -356,7 +356,7 @@ const TaxiAdminApp = () => {
                 className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary} mt-1`}
               />
               <p className={`text-xs ${currentTheme.textMuted} mt-1`}>
-                Příklad: "aug" = Augustine, "hil" = Hilton
+                Příklad: aug = Augustine, hil = Hilton
               </p>
             </div>
 
