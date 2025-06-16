@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { MapPin, Navigation, Phone, MessageSquare, DollarSign, Clock, Calendar, Power, CheckCircle, XCircle, AlertCircle, User, Star, TrendingUp, Home, History, Camera, FileText, Settings, Bell, Users, Car, Plane } from 'lucide-react';
 
 const TaxiDriverApp = () => {
@@ -12,6 +13,7 @@ const TaxiDriverApp = () => {
   const [acceptTimer, setAcceptTimer] = useState(15);
   const [isRegistered, setIsRegistered] = useState(true);
   const [workingHours, setWorkingHours] = useState({ enabled: true, from: '08:00', to: '20:00' });
+  const [showMapModal, setShowMapModal] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     // Automatyczna detekcja czasu - tryb ciemny między 20:00 a 06:00
     const hour = new Date().getHours();
@@ -92,7 +94,7 @@ const TaxiDriverApp = () => {
     setShowNewRequest(false);
     setHasActiveRide(true);
     setRideStatus('waiting');
-    setCurrentScreen('active-ride');
+    setShowMapModal(true); // Otwórz modal z mapą zamiast przechodzić do active-ride
   };
 
   const rejectRide = () => {
@@ -117,13 +119,26 @@ const TaxiDriverApp = () => {
   // Główna obrazovka
   const HomeScreen = () => (
     <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-20 overflow-y-auto`}>
-      {/* Status bar s gradientem */}
-      <div className={`relative overflow-hidden transition-all duration-500 ${
-        isOnline 
-          ? 'bg-gradient-to-br from-green-400 via-green-500 to-green-600' 
-          : 'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
-      }`}>
+      {/* Status bar s gradientem - cały jako button */}
+      <button
+        onClick={() => setIsOnline(!isOnline)}
+        className={`relative w-full overflow-hidden transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] ${
+          isOnline 
+            ? 'bg-gradient-to-br from-green-400 via-green-500 to-green-600' 
+            : 'bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900'
+        }`}
+      >
         <div className="absolute inset-0 bg-black opacity-10"></div>
+        {/* Efekt gwiazd dla nocnego nieba */}
+        {!isOnline && (
+          <>
+            <div className="absolute top-2 left-8 w-1 h-1 bg-white rounded-full opacity-60 animate-pulse"></div>
+            <div className="absolute top-6 right-12 w-0.5 h-0.5 bg-white rounded-full opacity-80"></div>
+            <div className="absolute top-12 left-20 w-0.5 h-0.5 bg-blue-200 rounded-full opacity-70 animate-pulse"></div>
+            <div className="absolute top-8 right-20 w-1 h-1 bg-indigo-200 rounded-full opacity-50"></div>
+            <div className="absolute top-14 left-32 w-0.5 h-0.5 bg-white rounded-full opacity-90 animate-pulse"></div>
+          </>
+        )}
         <div className="relative p-4 text-white">
           <div className="flex justify-between items-center">
             <div>
@@ -139,19 +154,18 @@ const TaxiDriverApp = () => {
                 </p>
               )}
             </div>
-            <button
-              onClick={() => setIsOnline(!isOnline)}
+            <div
               className={`
                 w-20 h-20 rounded-full flex items-center justify-center
                 transform transition-all duration-300 hover:scale-110 active:scale-95
                 ${isOnline 
                   ? 'bg-white text-green-500 shadow-lg' 
-                  : 'bg-white text-gray-500 shadow-lg hover:shadow-xl'
+                  : 'bg-white bg-opacity-90 text-slate-700 shadow-lg hover:shadow-xl'
                 }
               `}
             >
               <Power size={36} strokeWidth={2.5} />
-            </button>
+            </div>
           </div>
         </div>
         {/* Animated wave effect */}
@@ -160,13 +174,19 @@ const TaxiDriverApp = () => {
             <div className="h-full bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
           </div>
         )}
-      </div>
+        {/* Nocny blask dla offline */}
+        {!isOnline && (
+          <div className="absolute bottom-0 left-0 right-0 h-1">
+            <div className="h-full bg-gradient-to-r from-transparent via-blue-300 to-transparent opacity-20 animate-pulse"></div>
+          </div>
+        )}
+      </button>
 
       {/* Dnešní statistiky s card efektem */}
       <div className="p-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className={`${currentTheme.textSecondary} text-sm font-semibold`}>Dnešní přehled</h3>
-          {/* Przełącznik trybu ciemnego/jasnego */}
+          {/* Přepínač tmavého/světlého režimu */}
           <button
             onClick={() => setDarkMode(!darkMode)}
             className={`p-2 rounded-xl transition-all duration-300 ${
@@ -174,7 +194,7 @@ const TaxiDriverApp = () => {
                 ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
                 : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             }`}
-            title={darkMode ? 'Przełącz na tryb dzienny' : 'Przełącz na tryb nocny'}
+            title={darkMode ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
           >
             {darkMode ? '☀️' : '🌙'}
           </button>
@@ -317,6 +337,146 @@ const TaxiDriverApp = () => {
       </div>
     </div>
   );
+
+  // Modal z mapą na cały ekran
+  const renderMapModal = () => {
+    if (!showMapModal) return null;
+    
+    // Wybór odpowiedniej mapy na podstawie stanu jazdy i motywu
+    const getMapImage = () => {
+      const theme = darkMode ? 'dark' : 'light';
+      const status = rideStatus;
+      
+      // 6 różnych map
+      const maps = {
+        light: {
+          waiting: './maps/a1.png',
+          picked_up: './maps/a2.png',
+          in_progress: './maps/a3.png',
+        },
+        dark: {
+          waiting: './maps/a1.jpg',
+          picked_up: './maps/a2.jpg',
+          in_progress: './maps/a3.jpg',
+        }
+      };
+      
+      return maps[theme][status] || maps[theme].waiting;
+    };
+
+    const closeMapModal = () => {
+      setShowMapModal(false);
+      setCurrentScreen('active-ride');
+    };
+
+    const updateRideStatusInModal = () => {
+      if (rideStatus === 'waiting') {
+        setRideStatus('picked_up');
+      } else if (rideStatus === 'picked_up') {
+        setRideStatus('in_progress');
+      } else {
+        setHasActiveRide(false);
+        setRideStatus('waiting');
+        setTodayEarnings(todayEarnings + 900);
+        setTodayRides(todayRides + 1);
+        setShowMapModal(false);
+        setCurrentScreen('home');
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black">
+        {/* Mapa na cały ekran */}
+        <div className="relative w-full h-full overflow-hidden">
+          <img 
+            src={getMapImage()}
+            alt="GPS Mapa"
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Overlay z informacjami - górny lewy róg */}
+          <div className={`absolute top-4 left-4 ${currentTheme.cardBg} rounded-2xl p-4 ${currentTheme.shadow} max-w-sm`}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`font-bold ${currentTheme.textPrimary}`}>Aktivní jízda</h3>
+              <button 
+                onClick={closeMapModal}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <XCircle size={20} className={`${currentTheme.textMuted}`} />
+              </button>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center">
+                <div className={`w-3 h-3 rounded-full mr-2 ${
+                  rideStatus !== 'waiting' ? 'bg-green-500' : 'bg-gray-300'
+                }`}></div>
+                <span className={`${currentTheme.textSecondary}`}>Hotel Augustine</span>
+              </div>
+              
+              <div className="flex items-center">
+                <div className={`w-3 h-3 rounded-full mr-2 ${
+                  rideStatus === 'in_progress' ? 'bg-blue-500' : 'bg-gray-300'
+                }`}></div>
+                <span className={`${currentTheme.textSecondary}`}>Letiště Václava Havla</span>
+              </div>
+              
+              <div className={`mt-3 p-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg`}>
+                <p className={`text-xs ${currentTheme.textMuted} mb-1`}>Status:</p>
+                <p className={`font-semibold ${currentTheme.textPrimary}`}>
+                  {rideStatus === 'waiting' && 'Jeďte k místu vyzvednutí'}
+                  {rideStatus === 'picked_up' && 'Cestující na palubě'}
+                  {rideStatus === 'in_progress' && 'Na cestě k cíli'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Informace o příjmu - górny prawy róg */}
+          <div className={`absolute top-4 right-4 ${currentTheme.cardBg} rounded-2xl p-4 ${currentTheme.shadow}`}>
+            <div className="text-center">
+              <p className={`text-sm ${currentTheme.textMuted} mb-1`}>Váš příjem</p>
+              <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">700 Kč</p>
+            </div>
+          </div>
+
+          {/* Przycisk akcji - dół */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <div className={`${darkMode ? 'text-white' : 'text-black'} transition-colors duration-300`}>
+              {
+                  rideStatus === 'waiting' ? 'Jsem na místě' :
+                  rideStatus === 'picked_up' ? 'Zahájit jízdu' :
+                  'Ukončit jízdu'
+                }
+            </div>
+            <button
+              onClick={updateRideStatusInModal}
+                className={`w-16 h-16 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center ${
+                  rideStatus === 'waiting' ? 'bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' :
+                  rideStatus === 'picked_up' ? 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' :
+                  'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700'
+                }`}
+                title={
+                  rideStatus === 'waiting' ? 'Jsem na místě' :
+                  rideStatus === 'picked_up' ? 'Zahájit jízdu' :
+                  'Ukončit jízdu'
+                }
+              >
+                {rideStatus === 'waiting' && <MapPin className="text-white" size={24} strokeWidth={2.5} />}
+                {rideStatus === 'picked_up' && <Navigation className="text-white" size={24} strokeWidth={2.5} />}
+                {rideStatus === 'in_progress' && <CheckCircle className="text-white" size={24} strokeWidth={2.5} />}
+                
+              </button>
+          </div>
+
+          <button onClick={closeMapModal} className="absolute bottom-6 right-6 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <Navigation size={24} />
+          </button>
+          
+        </div>
+      </div>
+    );
+  };
 
   // Obrazovka nové objednávky s animacemi
   const NewRequestScreen = () => (
@@ -566,6 +726,14 @@ const TaxiDriverApp = () => {
           {rideStatus === 'picked_up' && 'Zahájit jízdu'}
           {rideStatus === 'in_progress' && 'Ukončit jízdu'}
         </button>
+        
+        {/* Tlačítko pro návrat k mapě */}
+        <button
+          onClick={() => setShowMapModal(true)}
+          className={`w-full mt-3 py-3 ${currentTheme.cardBg} border-2 border-blue-500 text-blue-500 rounded-2xl font-semibold hover:bg-blue-50 ${darkMode ? 'hover:bg-blue-900' : 'hover:bg-blue-50'} transition-all duration-300`}
+        >
+          📍 Zobrazit mapu na celé obrazovce
+        </button>
       </div>
     </div>
   );
@@ -671,6 +839,340 @@ const TaxiDriverApp = () => {
     </div>
   );
 
+  // Profil řidiče s formulářem
+  const ProfileScreen = () => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempProfile, setTempProfile] = useState({...driverProfile});
+    const [showPhoneVerification, setShowPhoneVerification] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [isVerified, setIsVerified] = useState(true);
+
+    const handleSave = () => {
+      setDriverProfile(tempProfile);
+      setIsEditing(false);
+      // Simulace uložení
+    };
+
+    const handleCancel = () => {
+      setTempProfile({...driverProfile});
+      setIsEditing(false);
+    };
+
+    const handlePhotoUpload = () => {
+      // Simulace nahrání fotky
+      setTempProfile({...tempProfile, photo: 'uploaded_photo.jpg'});
+    };
+
+    const verifyPhone = () => {
+      if (verificationCode === '1234') {
+        setIsVerified(true);
+        setShowPhoneVerification(false);
+        setVerificationCode('');
+      }
+    };
+
+    return (
+      <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+        {/* Header */}
+        <div className={`${currentTheme.cardBg} p-4 ${currentTheme.shadow}`}>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Profil řidiče</h2>
+              <p className={`text-sm ${currentTheme.textSecondary} mt-1`}>
+                {isEditing ? 'Editace údajů' : 'Vaše údaje'}
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              {isVerified ? (
+                <div className="flex items-center bg-green-100 px-3 py-1 rounded-full">
+                  <CheckCircle size={16} className="text-green-600 mr-1" />
+                  <span className="text-xs text-green-700 font-semibold">Ověřen</span>
+                </div>
+              ) : (
+                <div className="flex items-center bg-red-100 px-3 py-1 rounded-full">
+                  <AlertCircle size={16} className="text-red-600 mr-1" />
+                  <span className="text-xs text-red-700 font-semibold">Neověřen</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {/* Fotka auta */}
+          <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+            <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Fotka vozidla</h3>
+            <div className="flex items-center space-x-4">
+              <div className={`w-20 h-20 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-xl flex items-center justify-center`}>
+                {tempProfile.photo ? (
+                  <div className="text-center">
+                    <CheckCircle className="text-green-600 mx-auto mb-1" size={24} />
+                    <span className="text-xs text-green-600">Nahráno</span>
+                  </div>
+                ) : (
+                  <Camera className={`${currentTheme.textMuted}`} size={32} />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className={`font-semibold ${currentTheme.textPrimary}`}>
+                  {tempProfile.photo ? 'Fotka nahrána' : 'Žádná fotka'}
+                </p>
+                <p className={`text-sm ${currentTheme.textMuted} mt-1`}>
+                  Nahrajte fotografii vašeho vozidla
+                </p>
+                {isEditing && (
+                  <button
+                    onClick={handlePhotoUpload}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    {tempProfile.photo ? 'Změnit fotku' : 'Nahrát fotku'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Osobní údaje */}
+          <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+            <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Osobní údaje</h3>
+            <div className="space-y-4">
+              <div>
+                <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Jméno a příjmení</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={tempProfile.name}
+                    onChange={(e) => setTempProfile({...tempProfile, name: e.target.value})}
+                    className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                    placeholder="Zadejte jméno a příjmení"
+                  />
+                ) : (
+                  <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className={`text-sm ${currentTheme.textSecondary} font-medium flex items-center`}>
+                  Telefon
+                  {!isVerified && (
+                    <button
+                      onClick={() => setShowPhoneVerification(true)}
+                      className="ml-2 text-blue-600 text-xs underline"
+                    >
+                      Ověřit
+                    </button>
+                  )}
+                </label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    value={tempProfile.phone}
+                    onChange={(e) => setTempProfile({...tempProfile, phone: e.target.value})}
+                    className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                    placeholder="+420 777 123 456"
+                  />
+                ) : (
+                  <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.phone}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Údaje o vozidle */}
+          <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+            <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Údaje o vozidle</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Model vozidla</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={tempProfile.carModel}
+                      onChange={(e) => setTempProfile({...tempProfile, carModel: e.target.value})}
+                      className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                      placeholder="Škoda Superb"
+                    />
+                  ) : (
+                    <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.carModel}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Rok výroby</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={tempProfile.carYear}
+                      onChange={(e) => setTempProfile({...tempProfile, carYear: e.target.value})}
+                      className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                      placeholder="2021"
+                    />
+                  ) : (
+                    <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.carYear}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>SPZ</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={tempProfile.spz}
+                      onChange={(e) => setTempProfile({...tempProfile, spz: e.target.value})}
+                      className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                      placeholder="3A7 1234"
+                    />
+                  ) : (
+                    <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.spz}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Barva</label>
+                  {isEditing ? (
+                    <select
+                      value={tempProfile.carColor}
+                      onChange={(e) => setTempProfile({...tempProfile, carColor: e.target.value})}
+                      className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                    >
+                      <option value="Černá">Černá</option>
+                      <option value="Bílá">Bílá</option>
+                      <option value="Stříbrná">Stříbrná</option>
+                      <option value="Modrá">Modrá</option>
+                      <option value="Červená">Červená</option>
+                    </select>
+                  ) : (
+                    <p className={`${currentTheme.textPrimary} font-semibold mt-1`}>{driverProfile.carColor}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Typ vozidla</label>
+                {isEditing ? (
+                  <select
+                    value={tempProfile.carType}
+                    onChange={(e) => setTempProfile({...tempProfile, carType: e.target.value})}
+                    className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mt-1 ${currentTheme.inputBg} ${currentTheme.textPrimary}`}
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="minivan">Minivan</option>
+                  </select>
+                ) : (
+                  <div className="mt-1">
+                    <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      driverProfile.carType === 'minivan' 
+                        ? `bg-gradient-to-r ${darkMode ? 'from-purple-800 to-purple-900 text-purple-300' : 'from-purple-100 to-purple-200 text-purple-700'}` 
+                        : `bg-gradient-to-r ${darkMode ? 'from-blue-800 to-blue-900 text-blue-300' : 'from-blue-100 to-blue-200 text-blue-700'}`
+                    }`}>
+                      {driverProfile.carType === 'minivan' ? 'Minivan' : 'Standard'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tlačítka pro editaci */}
+          <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+            {isEditing ? (
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleCancel}
+                  className={`flex-1 py-3 ${currentTheme.inputBg} ${currentTheme.textPrimary} rounded-xl font-semibold border ${currentTheme.borderStrong} hover:bg-gray-100 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-all duration-300`}
+                >
+                  Zrušit
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-1 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  Uložit změny
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                Upravit profil
+              </button>
+            )}
+          </div>
+
+          {/* Všeobecné podmínky a status registrace */}
+          <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
+            <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Status registrace</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className={`${currentTheme.textPrimary} font-medium`}>Všeobecné podmínky</span>
+                <CheckCircle className="text-green-600" size={20} />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={`${currentTheme.textPrimary} font-medium`}>Ověření telefonu</span>
+                {isVerified ? (
+                  <CheckCircle className="text-green-600" size={20} />
+                ) : (
+                  <AlertCircle className="text-red-600" size={20} />
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                <span className={`${currentTheme.textPrimary} font-medium`}>Schválení administrátorem</span>
+                <CheckCircle className="text-green-600" size={20} />
+              </div>
+            </div>
+            
+            <div className={`mt-4 p-3 bg-gradient-to-r ${darkMode ? 'from-green-900 to-green-800' : 'from-green-50 to-green-100'} rounded-xl border ${darkMode ? 'border-green-800' : 'border-green-200'}`}>
+              <p className={`text-sm ${darkMode ? 'text-green-300' : 'text-green-800'} font-medium text-center`}>
+                ✅ Váš profil je schválen a můžete jezdit
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal pro ověření telefonu */}
+        {showPhoneVerification && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className={`${currentTheme.cardBg} rounded-2xl p-6 w-full max-w-sm`}>
+              <h3 className={`font-bold ${currentTheme.textPrimary} mb-4 text-center`}>Ověření telefonu</h3>
+              <p className={`text-sm ${currentTheme.textSecondary} mb-4 text-center`}>
+                Zadejte ověřovací kód zaslaný na číslo {driverProfile.phone}
+              </p>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="Zadejte kód"
+                className={`w-full p-3 border ${currentTheme.borderStrong} rounded-xl mb-4 ${currentTheme.inputBg} ${currentTheme.textPrimary} text-center text-lg font-mono`}
+                maxLength="4"
+              />
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowPhoneVerification(false)}
+                  className={`flex-1 py-3 ${currentTheme.inputBg} ${currentTheme.textPrimary} rounded-xl font-semibold border ${currentTheme.borderStrong}`}
+                >
+                  Zrušit
+                </button>
+                <button
+                  onClick={verifyPhone}
+                  className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold"
+                >
+                  Ověřit
+                </button>
+              </div>
+              <p className={`text-xs ${currentTheme.textMuted} text-center mt-3`}>
+                Demo kód: 1234
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Nastavení s moderním designem
   const SettingsScreen = () => (
     <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
@@ -679,14 +1181,14 @@ const TaxiDriverApp = () => {
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Tryb ciemny/jasny */}
+        {/* Vzhled aplikace */}
         <div className={`${currentTheme.cardBg} p-5 rounded-2xl ${currentTheme.shadow}`}>
-          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Wygląd aplikacji</h3>
+          <h3 className={`font-bold ${currentTheme.textPrimary} mb-4`}>Vzhled aplikace</h3>
           <div className="flex items-center justify-between">
             <div>
-              <span className={`${currentTheme.textPrimary} font-medium`}>Tryb ciemny</span>
+              <span className={`${currentTheme.textPrimary} font-medium`}>Tmavý režim</span>
               <p className={`text-sm ${currentTheme.textMuted} mt-1`}>
-                {darkMode ? 'Obecnie włączony' : 'Obecnie wyłączony'}
+                {darkMode ? 'Aktuálně zapnut' : 'Aktuálně vypnut'}
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -823,9 +1325,13 @@ const TaxiDriverApp = () => {
       {currentScreen === 'active-ride' && <ActiveRideScreen />}
       {currentScreen === 'history' && <HistoryScreen />}
       {currentScreen === 'settings' && <SettingsScreen />}
+      {currentScreen === 'profile' && <ProfileScreen />}
 
       {/* Zobrazit novou objednávku */}
       {showNewRequest && <NewRequestScreen />}
+
+      {/* Modal z mapą na cały ekran */}
+      {renderMapModal()}
 
       {/* Spodní navigace s fixed pozicí */}
       <div className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto ${currentTheme.navBg} border-t ${currentTheme.navBorder} z-40`}>
@@ -860,3 +1366,4 @@ const TaxiDriverApp = () => {
 };
 
 export default TaxiDriverApp;
+
