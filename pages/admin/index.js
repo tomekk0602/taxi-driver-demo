@@ -691,137 +691,213 @@ const TaxiAdminApp = () => {
     </div>
   );
 
-  // Drivers Screen
-  const DriversScreen = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Správa řidičů</h2>
-        <div className="flex space-x-3">
-          <div className="relative">
-            <Search className={`absolute left-3 top-3 ${currentTheme.textMuted}`} size={20} />
-            <input
-              type="text"
-              placeholder="Hledat řidiče..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`pl-10 pr-4 py-2 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
-            />
+  // AKTUALIZOVANÝ Drivers Screen s responsywnimi poprawkami
+  const DriversScreen = () => {
+    // Komponenta pro desktop tabulku
+    const DesktopTable = () => (
+      <div className="hidden md:block">
+        <div className={`${currentTheme.cardBg} rounded-xl ${currentTheme.shadow} overflow-hidden`}>
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h3 className={`text-lg font-bold ${currentTheme.textPrimary}`}>Všichni řidiči</h3>
+              <div className="flex space-x-2">
+                <button className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  Online ({drivers.filter(d => d.status === 'online').length})
+                </button>
+                <button className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                  Celkem ({drivers.length})
+                </button>
+              </div>
+            </div>
           </div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus size={20} />
-          </button>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className={`${currentTheme.bg}`}>
+                <tr>
+                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Řidič</th>
+                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Vozidlo</th>
+                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Status</th>
+                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Typ</th>
+                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Akce</th>
+                </tr>
+              </thead>
+              <tbody>
+                {drivers.filter(d => d.approved).map(driver => (
+                  <tr key={driver.id} className={`border-t ${currentTheme.border} ${currentTheme.hover}`}>
+                    <td className="p-4">
+                      <div>
+                        <p className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>{driver.phone}</p>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <p className={`${currentTheme.textPrimary}`}>{driver.car}</p>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        driver.status === 'online' ? 'bg-green-100 text-green-800' :
+                        driver.status === 'busy' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {driver.status === 'online' ? 'Online' : 
+                         driver.status === 'busy' ? 'Zaneprázdněn' : 'Offline'}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex space-x-2">
+                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded">
+                          <Edit size={16} />
+                        </button>
+                        <button className="p-2 text-orange-600 hover:bg-orange-100 rounded">
+                          <Ban size={16} />
+                        </button>
+                        <button className="p-2 text-green-600 hover:bg-green-100 rounded">
+                          <MessageSquare size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+    );
 
-      {/* Pending Approvals */}
-      {drivers.some(d => !d.approved) && (
-        <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-          <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-orange-600`}>
-            Čekající schválení ({drivers.filter(d => !d.approved).length})
-          </h3>
-          <div className="space-y-3">
-            {drivers.filter(d => !d.approved).map(driver => (
-              <div key={driver.id} className="flex justify-between items-center p-4 bg-orange-50 rounded-lg">
-                <div>
-                  <p className="font-semibold">{driver.name}</p>
-                  <p className="text-sm text-gray-600">{driver.phone} • {driver.car}</p>
+    // Komponenta pro mobilní karty
+    const MobileCards = () => (
+      <div className="md:hidden space-y-4">
+        {drivers.filter(d => d.approved).map(driver => (
+          <div key={driver.id} className={`${currentTheme.cardBg} border ${currentTheme.border} rounded-lg p-4 ${currentTheme.shadow}`}>
+            {/* Hlavička karty */}
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold text-sm">{driver.name.charAt(0)}</span>
                 </div>
-                <div className="flex space-x-2">
-                  <button 
-                    onClick={() => {
-                      setDrivers(drivers.map(d => d.id === driver.id ? {...d, approved: true} : d));
-                    }}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Schválit
-                  </button>
-                  <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Odmítnout
-                  </button>
+                <div>
+                  <h4 className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</h4>
+                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                    <Phone size={12} />
+                    <span>{driver.phone}</span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              
+              {/* Status badge */}
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                driver.status === 'online' ? 'bg-green-100 text-green-800' :
+                driver.status === 'busy' ? 'bg-blue-100 text-blue-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {driver.status === 'online' ? 'Online' : 
+                 driver.status === 'busy' ? 'Zaneprázdněn' : 'Offline'}
+              </span>
+            </div>
 
-      {/* Drivers List */}
-      <div className={`${currentTheme.cardBg} rounded-xl ${currentTheme.shadow} overflow-hidden`}>
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary}`}>Všichni řidiči</h3>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                Online ({drivers.filter(d => d.status === 'online').length})
+            {/* Detaily */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="flex items-center space-x-2">
+                <Car size={14} className="text-gray-400" />
+                <span className={`text-sm ${currentTheme.textSecondary}`}>{driver.car}</span>
+              </div>
+              <div className="flex justify-end">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
+                </span>
+              </div>
+            </div>
+
+            {/* Akce */}
+            <div className="flex justify-end space-x-2">
+              <button className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors">
+                <Edit size={16} />
               </button>
-              <button className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
-                Celkem ({drivers.length})
+              <button className="p-2 text-orange-600 hover:bg-orange-100 rounded transition-colors">
+                <Ban size={16} />
+              </button>
+              <button className="p-2 text-green-600 hover:bg-green-100 rounded transition-colors">
+                <MessageSquare size={16} />
               </button>
             </div>
           </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className={`${currentTheme.bg}`}>
-              <tr>
-                <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Řidič</th>
-                <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Vozidlo</th>
-                <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Status</th>
-                <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Typ</th>
-                <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Akce</th>
-              </tr>
-            </thead>
-            <tbody>
-              {drivers.filter(d => d.approved).map(driver => (
-                <tr key={driver.id} className={`border-t ${currentTheme.border} ${currentTheme.hover}`}>
-                  <td className="p-4">
-                    <div>
-                      <p className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</p>
-                      <p className={`text-sm ${currentTheme.textSecondary}`}>{driver.phone}</p>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <p className={`${currentTheme.textPrimary}`}>{driver.car}</p>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      driver.status === 'online' ? 'bg-green-100 text-green-800' :
-                      driver.status === 'busy' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {driver.status === 'online' ? 'Online' : 
-                       driver.status === 'busy' ? 'Zaneprázdněn' : 'Offline'}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-100 rounded">
-                        <Edit size={16} />
-                      </button>
-                      <button className="p-2 text-orange-600 hover:bg-orange-100 rounded">
-                        <Ban size={16} />
-                      </button>
-                      <button className="p-2 text-green-600 hover:bg-green-100 rounded">
-                        <MessageSquare size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        ))}
       </div>
-    </div>
-  );
+    );
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+          <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Správa řidičů</h2>
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+            <div className="relative">
+              <Search className={`absolute left-3 top-3 ${currentTheme.textMuted}`} size={20} />
+              <input
+                type="text"
+                placeholder="Hledat řidiče..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`pl-10 pr-4 py-2 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary} w-full sm:w-auto`}
+              />
+            </div>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+              <Plus size={20} className="mr-2" />
+              <span>Přidat řidiče</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Pending Approvals */}
+        {drivers.some(d => !d.approved) && (
+          <div className={`${currentTheme.cardBg} p-4 sm:p-6 rounded-xl ${currentTheme.shadow}`}>
+            <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-orange-600`}>
+              Čekající schválení ({drivers.filter(d => !d.approved).length})
+            </h3>
+            <div className="space-y-3">
+              {drivers.filter(d => !d.approved).map(driver => (
+                <div key={driver.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 bg-orange-50 rounded-lg space-y-3 sm:space-y-0">
+                  <div>
+                    <p className="font-semibold">{driver.name}</p>
+                    <p className="text-sm text-gray-600">{driver.phone} • {driver.car}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => {
+                        setDrivers(drivers.map(d => d.id === driver.id ? {...d, approved: true} : d));
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex-1 sm:flex-initial"
+                    >
+                      Schválit
+                    </button>
+                    <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex-1 sm:flex-initial">
+                      Odmítnout
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Desktop Table */}
+        <DesktopTable />
+        
+        {/* Mobile Cards */}
+        <MobileCards />
+      </div>
+    );
+  };
 
   // Settings Screen  
   const SettingsScreen = () => (
@@ -924,7 +1000,7 @@ const TaxiAdminApp = () => {
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
         <button className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
           Zrušit
         </button>
