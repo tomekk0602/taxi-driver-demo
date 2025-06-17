@@ -9,7 +9,6 @@ const TaxiDriverApp = () => {
   const [rideStatus, setRideStatus] = useState('waiting');
   const [todayEarnings, setTodayEarnings] = useState(2840);
   const [todayRides, setTodayRides] = useState(7);
-  const [acceptTimer, setAcceptTimer] = useState(15);
   const [isRegistered, setIsRegistered] = useState(true);
   const [workingHours, setWorkingHours] = useState({ enabled: true, from: '08:00', to: '20:00' });
   const [showMapModal, setShowMapModal] = useState(false);
@@ -82,24 +81,10 @@ const TaxiDriverApp = () => {
     if (isOnline && !hasActiveRide && !showNewRequest) {
       const timer = setTimeout(() => {
         setShowNewRequest(true);
-        setAcceptTimer(15);
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isOnline, hasActiveRide, showNewRequest]);
-
-  // Timer pro přijetí objednávky
-  useEffect(() => {
-    if (showNewRequest && acceptTimer > 0) {
-      const timer = setTimeout(() => {
-        setAcceptTimer(acceptTimer - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else if (acceptTimer === 0) {
-      setShowNewRequest(false);
-      setAcceptTimer(15);
-    }
-  }, [showNewRequest, acceptTimer]);
 
   const acceptRide = () => {
     setShowNewRequest(false);
@@ -110,7 +95,6 @@ const TaxiDriverApp = () => {
 
   const rejectRide = () => {
     setShowNewRequest(false);
-    setAcceptTimer(15);
   };
 
   const updateRideStatus = () => {
@@ -129,8 +113,8 @@ const TaxiDriverApp = () => {
 
   // Hlavní obrazovka
   const HomeScreen = () => (
-    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-20 overflow-y-auto`}>
-      {/* Status bar s gradientem */}
+    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-16 overflow-hidden`}>
+      {/* Status bar s gradientem - kompaktní */}
       <button
         onClick={() => setIsOnline(!isOnline)}
         className={`relative w-full overflow-hidden transition-all duration-500 hover:scale-[1.01] active:scale-[0.99] ${
@@ -142,39 +126,38 @@ const TaxiDriverApp = () => {
         <div className="absolute inset-0 bg-black opacity-10"></div>
         {!isOnline && (
           <>
-            <div className="absolute top-2 left-8 w-1 h-1 bg-white rounded-full opacity-60 animate-pulse"></div>
-            <div className="absolute top-6 right-12 w-0.5 h-0.5 bg-white rounded-full opacity-80"></div>
-            <div className="absolute top-12 left-20 w-0.5 h-0.5 bg-blue-200 rounded-full opacity-70 animate-pulse"></div>
-            <div className="absolute top-8 right-20 w-1 h-1 bg-indigo-200 rounded-full opacity-50"></div>
-            <div className="absolute top-14 left-32 w-0.5 h-0.5 bg-white rounded-full opacity-90 animate-pulse"></div>
+            <div className="absolute top-1 left-6 w-1 h-1 bg-white rounded-full opacity-60 animate-pulse"></div>
+            <div className="absolute top-4 right-8 w-0.5 h-0.5 bg-white rounded-full opacity-80"></div>
+            <div className="absolute top-6 left-12 w-0.5 h-0.5 bg-blue-200 rounded-full opacity-70 animate-pulse"></div>
+            <div className="absolute top-3 right-12 w-1 h-1 bg-indigo-200 rounded-full opacity-50"></div>
           </>
         )}
-        <div className="relative p-8 text-white">
+        <div className="relative p-5 text-white">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">
+              <h2 className="text-2xl font-bold tracking-tight">
                 {isOnline ? 'ONLINE' : 'OFFLINE'}
               </h2>
-              <p className="text-sm opacity-90 mt-2">
+              <p className="text-xs opacity-90 mt-1">
                 {isOnline ? 'Čekání na objednávky...' : 'Stiskněte pro začátek'}
               </p>
               {isOnline && !hasActiveRide && (
-                <p className="text-xs text-teal-100 mt-3 animate-pulse">
+                <p className="text-xs text-teal-100 mt-2 animate-pulse">
                   Demo: objednávka přijde za 3 sekundy
                 </p>
               )}
             </div>
             <div
               className={`
-                w-24 h-24 rounded-full flex items-center justify-center
+                w-16 h-16 rounded-full flex items-center justify-center
                 transform transition-all duration-300 hover:scale-110 active:scale-95
                 ${isOnline 
-                  ? 'bg-white text-teal-500 shadow-xl drop-shadow-lg' 
-                  : 'bg-white bg-opacity-90 text-slate-700 shadow-xl hover:shadow-2xl drop-shadow-lg'
+                  ? 'bg-white text-teal-500 shadow-lg drop-shadow-lg' 
+                  : 'bg-white bg-opacity-90 text-slate-700 shadow-lg hover:shadow-xl drop-shadow-lg'
                 }
               `}
             >
-              <Power size={42} strokeWidth={3} className="drop-shadow-sm" />
+              <Power size={28} strokeWidth={3} className="drop-shadow-sm" />
             </div>
           </div>
         </div>
@@ -190,157 +173,115 @@ const TaxiDriverApp = () => {
         )}
       </button>
 
-      {/* Dnešní statistiky */}
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className={`${currentTheme.textSecondary} text-sm font-semibold`}>Dnešní přehled</h3>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-3 rounded-2xl transition-all duration-300 ${
-              darkMode 
-                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-            title={darkMode ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="relative group">
-            <div 
-              className={`${currentTheme.cardBg} p-8 rounded-3xl transition-all duration-300 border border-gray-100`}
-              style={{
-                boxShadow: darkMode 
-                  ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
-                  : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <div className="text-center">
-                <div className={`p-4 bg-teal-100 rounded-2xl mx-auto w-fit mb-4`}>
-                  <DollarSign className="text-teal-600 drop-shadow-sm" size={34} strokeWidth={2.8} />
-                </div>
-                <p className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent mb-2">
-                  {todayEarnings.toLocaleString()} 
-                </p>
-                <p className={`text-sm ${currentTheme.textSecondary} uppercase tracking-wide`}>Výdělek</p>
-                <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="relative group">
-            <div 
-              className={`${currentTheme.cardBg} p-8 rounded-3xl transition-all duration-300 border border-gray-100`}
-              style={{
-                boxShadow: darkMode 
-                  ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
-                  : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <div className="text-center">
-                <div className={`p-4 bg-purple-100 rounded-2xl mx-auto w-fit mb-4`}>
-                  <TrendingUp className="text-purple-600 drop-shadow-sm" size={34} strokeWidth={2.8} />
-                </div>
-                <p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent mb-2">
-                  {todayRides}
-                </p>
-                <p className={`text-sm ${currentTheme.textSecondary} uppercase tracking-wide`}>Jízdy</p>
-                <p className={`text-xs ${currentTheme.textMuted}`}>počet</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Info o autě */}
-      {/* <div className="mx-6 mb-6">
-        <div 
-          className={`${currentTheme.cardBg} rounded-3xl p-6 ${currentTheme.border}`}
-          style={{
-            boxShadow: darkMode 
-              ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
-              : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="mr-4">
-               
-                <div className="w-20 h-12 bg-gray-200 rounded-2xl overflow-hidden">
-                  <img 
-                    src="/mercedes-s-class.jpg" 
-                    alt={driverProfile.carModel}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div className={`w-full h-full bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-100 to-gray-200'} rounded-2xl items-center justify-center hidden`}>
-                    <Car className={`${currentTheme.textPrimary} drop-shadow-sm`} size={26} strokeWidth={2.5} />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p className={`font-semibold ${currentTheme.textPrimary} text-lg`}>{driverProfile.carModel}</p>
-                <p className={`text-sm ${currentTheme.textMuted}`}>{driverProfile.spz}</p>
-              </div>
-            </div>
-            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              driverProfile.carType === 'minivan' 
-                ? `bg-gradient-to-r ${darkMode ? 'from-purple-800 to-purple-900 text-purple-300' : 'from-purple-100 to-purple-200 text-purple-700'}` 
-                : `bg-gradient-to-r ${darkMode ? 'from-teal-800 to-teal-900 text-teal-300' : 'from-teal-100 to-teal-200 text-teal-700'}`
-            }`}>
-              {driverProfile.carType === 'minivan' ? 'Minivan' : 'Standard'}
-            </span>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Seznam dostupných objednávek nebo poslední aktivity */}
+      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        {isOnline ? (
-          <div className="p-6">
-            <h3 className={`${currentTheme.textSecondary} text-sm font-semibold mb-6`}>Dostupné objednávky</h3>
-            <div 
-              className={`${currentTheme.cardBg} rounded-3xl p-12 text-center`}
-              style={{
-                boxShadow: darkMode 
-                  ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
-                  : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
-              }}
+        {/* Dnešní statistiky - kompaktní */}
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={`${currentTheme.textSecondary} text-xs font-semibold`}>Dnešní přehled</h3>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-2 rounded-xl transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+              title={darkMode ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
             >
-              <div className={`p-6 bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-100 to-gray-200'} rounded-3xl mb-6 w-fit mx-auto`}>
-                <Clock size={58} strokeWidth={2.5} className={`${currentTheme.textMuted} drop-shadow-sm`} />
-              </div>
-              <p className={`${currentTheme.textPrimary} font-semibold mb-3 text-lg`}>Čekání na objednávky</p>
-              <p className={`text-sm ${currentTheme.textMuted}`}>Nové objednávky se zobrazí automaticky</p>
-              {!hasActiveRide && (
-                <div className="mt-6 flex items-center justify-center space-x-3">
-                  <div className="relative">
-                    <div className="w-3 h-3 bg-teal-500 rounded-full animate-ping absolute"></div>
-                    <div className="w-3 h-3 bg-teal-500 rounded-full"></div>
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative group">
+              <div 
+                className={`${currentTheme.cardBg} p-4 rounded-2xl transition-all duration-300 border border-gray-100`}
+                style={{
+                  boxShadow: darkMode 
+                    ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div className="text-center">
+                  <div className={`p-3 bg-teal-100 rounded-xl mx-auto w-fit mb-3`}>
+                    <DollarSign className="text-teal-600 drop-shadow-sm" size={24} strokeWidth={2.8} />
                   </div>
-                  <span className="text-sm text-teal-600 font-medium">Online a připraven</span>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent mb-1">
+                    {todayEarnings.toLocaleString()} 
+                  </p>
+                  <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Výdělek</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
                 </div>
-              )}
+              </div>
+            </div>
+            
+            <div className="relative group">
+              <div 
+                className={`${currentTheme.cardBg} p-4 rounded-2xl transition-all duration-300 border border-gray-100`}
+                style={{
+                  boxShadow: darkMode 
+                    ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div className="text-center">
+                  <div className={`p-3 bg-purple-100 rounded-xl mx-auto w-fit mb-3`}>
+                    <TrendingUp className="text-purple-600 drop-shadow-sm" size={24} strokeWidth={2.8} />
+                  </div>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent mb-1">
+                    {todayRides}
+                  </p>
+                  <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Jízdy</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>počet</p>
+                </div>
+              </div>
             </div>
           </div>
-        ) : (
-          <div className="p-6">
-            <div className={`mt-6 bg-gradient-to-r ${darkMode ? 'from-teal-900 to-teal-800' : 'from-teal-50 to-teal-100'} rounded-2xl p-6 border ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
-              <p className={`text-sm ${darkMode ? 'text-teal-300' : 'text-teal-800'} font-medium text-center`}>
-                Začněte vydělávat! Přepněte se do režimu ONLINE
-              </p>
+        </div>
+
+              {/* Seznam dostupných objednávek nebo poslední aktivity */}
+        <div className="flex-1 px-4 pb-4">
+          {isOnline ? (
+            <div>
+              <h3 className={`${currentTheme.textSecondary} text-xs font-semibold mb-3`}>Dostupné objednávky</h3>
+              <div 
+                className={`${currentTheme.cardBg} rounded-2xl p-6 text-center`}
+                style={{
+                  boxShadow: darkMode 
+                    ? '0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2)' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                <div className={`p-4 bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-100 to-gray-200'} rounded-2xl mb-4 w-fit mx-auto`}>
+                  <Clock size={36} strokeWidth={2.5} className={`${currentTheme.textMuted} drop-shadow-sm`} />
+                </div>
+                <p className={`${currentTheme.textPrimary} font-semibold mb-2 text-base`}>Čekání na objednávky</p>
+                <p className={`text-xs ${currentTheme.textMuted}`}>Nové objednávky se zobrazí automaticky</p>
+                {!hasActiveRide && (
+                  <div className="mt-4 flex items-center justify-center space-x-2">
+                    <div className="relative">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full animate-ping absolute"></div>
+                      <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                    </div>
+                    <span className="text-xs text-teal-600 font-medium">Online a připraven</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div>
+              <div className={`mt-4 bg-gradient-to-r ${darkMode ? 'from-teal-900 to-teal-800' : 'from-teal-50 to-teal-100'} rounded-xl p-4 border ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
+                <p className={`text-xs ${darkMode ? 'text-teal-300' : 'text-teal-800'} font-medium text-center`}>
+                  Začněte vydělávat! Přepněte se do režimu ONLINE
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Rychlé akce */}
-      <div className={`p-6 ${currentTheme.cardBg} border-t ${currentTheme.border}`}>
-        <div className="grid grid-cols-3 gap-4">
+      {/* Rychlé akce - kompaktní */}
+      <div className={`p-3 ${currentTheme.cardBg} border-t ${currentTheme.border}`}>
+        <div className="grid grid-cols-3 gap-2">
           {[
             { icon: Clock, label: 'Přestávka' },
             { icon: Phone, label: 'Podpora' },
@@ -348,12 +289,12 @@ const TaxiDriverApp = () => {
           ].map((item, index) => (
             <button
               key={index}
-              className={`group p-4 text-center rounded-2xl hover:bg-gradient-to-br ${darkMode ? 'hover:from-gray-700 hover:to-gray-800' : 'hover:from-gray-50 hover:to-gray-100'} transition-all duration-300`}
+              className={`group p-3 text-center rounded-xl hover:bg-gradient-to-br ${darkMode ? 'hover:from-gray-700 hover:to-gray-800' : 'hover:from-gray-50 hover:to-gray-100'} transition-all duration-300`}
             >
-              <div className={`p-3 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-2xl mx-auto w-fit group-hover:scale-110 transition-transform duration-300`}>
-                <item.icon className={`${currentTheme.textSecondary} drop-shadow-sm`} size={26} strokeWidth={2.5} />
+              <div className={`p-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-xl mx-auto w-fit group-hover:scale-110 transition-transform duration-300`}>
+                <item.icon className={`${currentTheme.textSecondary} drop-shadow-sm`} size={18} strokeWidth={2.5} />
               </div>
-              <span className={`text-sm ${currentTheme.textPrimary} mt-3 block font-medium`}>{item.label}</span>
+              <span className={`text-xs ${currentTheme.textPrimary} mt-2 block font-medium`}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -627,87 +568,82 @@ const TaxiDriverApp = () => {
 
   // Obrazovka nové objednávky
   const NewRequestScreen = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col animate-fadeIn">
-      <div className="flex-1 flex flex-col justify-center p-6">
-        <div className={`${currentTheme.cardBg} rounded-3xl overflow-hidden shadow-2xl animate-slideUp`}>
-          <div className="relative bg-gradient-to-r from-teal-500 to-teal-600 text-white p-8">
-            <div className="absolute inset-0 bg-white opacity-10"></div>
-            <div className="relative flex justify-between items-center">
-              <div>
-                <h2 className="text-3xl font-bold">NOVÁ OBJEDNÁVKA</h2>
-                <p className="text-teal-100 mt-2">Prioritní nabídka</p>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold font-mono animate-pulse">{acceptTimer}s</div>
-                <p className="text-xs text-teal-100">zbývá</p>
-              </div>
-            </div>
+    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4 animate-fadeIn">
+      <div className={`${currentTheme.cardBg} rounded-3xl overflow-hidden shadow-2xl animate-slideUp w-full max-w-md max-h-[90vh] flex flex-col`}>
+        <div className="relative bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6">
+          <div className="absolute inset-0 bg-white opacity-10"></div>
+          <div className="relative text-center">
+            <h2 className="text-2xl font-bold">NOVÁ OBJEDNÁVKA</h2>
+            <p className="text-teal-100 mt-2">Prioritní nabídka</p>
           </div>
+        </div>
 
-          <div className={`bg-gradient-to-r ${darkMode ? 'from-teal-900 to-teal-800' : 'from-teal-50 to-teal-100'} px-8 py-4 border-b ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className={`p-3 ${currentTheme.cardBg} rounded-2xl mr-4 ${currentTheme.shadow}`}>
-                  <Users className="text-teal-600" size={24} />
-                </div>
-                <span className={`font-bold ${currentTheme.textPrimary} text-lg`}>Hotel Augustine</span>
+        <div className={`bg-gradient-to-r ${darkMode ? 'from-teal-900 to-teal-800' : 'from-teal-50 to-teal-100'} px-6 py-4 border-b ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className={`p-3 ${currentTheme.cardBg} rounded-2xl mr-4 ${currentTheme.shadow}`}>
+                <Users className="text-teal-600" size={20} />
               </div>
-              <span className={`px-4 py-2 ${currentTheme.cardBg} rounded-full text-sm font-bold text-teal-600 ${currentTheme.shadow}`}>AUG</span>
+              <span className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</span>
             </div>
+            <span className={`px-3 py-2 ${currentTheme.cardBg} rounded-full text-sm font-bold text-teal-600 ${currentTheme.shadow}`}>AUG</span>
           </div>
+        </div>
 
-          <div className="p-8">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
             <div className="mb-6">
               <div className="flex items-center mb-4">
                 <div className="p-3 bg-green-100 rounded-2xl mr-4">
-                  <MapPin size={24} className="text-green-600" />
+                  <MapPin size={20} className="text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <p className={`font-bold ${currentTheme.textPrimary} text-lg`}>Hotel Augustine</p>
+                  <p className={`font-bold ${currentTheme.textPrimary}`}>Hotel Augustine</p>
                   <p className={`text-sm ${currentTheme.textSecondary}`}>Letenská 12/33, Praha 1</p>
                 </div>
               </div>
               
-              <div className="ml-16 mb-4">
+              <div className="ml-14 mb-4">
                 <div className="flex items-center">
-                  <div className="w-0.5 h-8 bg-gradient-to-b from-green-400 to-red-400 mr-4"></div>
+                  <div className="w-0.5 h-6 bg-gradient-to-b from-green-400 to-red-400 mr-4"></div>
                   <p className={`text-sm ${currentTheme.textMuted}`}>18.2 km • ~25 min</p>
                 </div>
               </div>
               
               <div className="flex items-center">
                 <div className="p-3 bg-red-100 rounded-2xl mr-4">
-                  <Plane size={24} className="text-red-600" />
+                  <Plane size={20} className="text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <p className={`font-bold ${currentTheme.textPrimary} text-lg`}>Letiště Václava Havla</p>
+                  <p className={`font-bold ${currentTheme.textPrimary}`}>Letiště Václava Havla</p>
                   <p className={`text-sm ${currentTheme.textSecondary}`}>Terminál 2, Odlety</p>
                 </div>
               </div>
             </div>
 
-          <div className={`bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-50 to-gray-100'} p-6 rounded-2xl mb-6 border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <p className={`text-3xl font-bold ${currentTheme.textPrimary} mb-1`}>900</p>
-                <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Celková cena</p>
-                <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
+            <div className={`bg-gradient-to-br ${darkMode ? 'from-gray-700 to-gray-800' : 'from-gray-50 to-gray-100'} p-5 rounded-2xl mb-6 border ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="text-center">
+                  <p className={`text-2xl font-bold ${currentTheme.textPrimary} mb-1`}>900</p>
+                  <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Celková cena</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent mb-1">700</p>
+                  <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Váš příjem</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
+                </div>
+                <div className="text-center">
+                  <p className={`text-2xl font-bold ${currentTheme.textPrimary} mb-1`}>25</p>
+                  <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Čas jízdy</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>min</p>
+                </div>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent mb-1">700</p>
-                <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Váš příjem</p>
-                <p className={`text-xs ${currentTheme.textMuted}`}>Kč</p>
-              </div>
-              <div className="text-center">
-                <p className={`text-3xl font-bold ${currentTheme.textPrimary} mb-1`}>25</p>
-                <p className={`text-xs ${currentTheme.textSecondary} uppercase tracking-wide`}>Čas jízdy</p>
-                <p className={`text-xs ${currentTheme.textMuted}`}>min</p>
+                <p className={`text-xs ${currentTheme.textMuted}`}>po odečtení provize</p>
               </div>
             </div>
-            <div className="text-center">
-              <p className={`text-xs ${currentTheme.textMuted} mb-1`}>po odečtení provize</p>
-            </div>
-          </div>
 
             <div className="space-y-3">
               {[
@@ -716,29 +652,30 @@ const TaxiDriverApp = () => {
                 { icon: FileText, text: 'Přepravní smlouva bude vygenerována' }
               ].map((item, index) => (
                 <div key={index} className={`flex items-center ${currentTheme.textSecondary} text-sm`}>
-                  <item.icon size={18} className={`mr-3 ${currentTheme.textMuted}`} />
+                  <item.icon size={16} className={`mr-3 ${currentTheme.textMuted}`} />
                   <span>{item.text}</span>
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          <div className={`flex p-6 space-x-4 bg-gradient-to-t ${darkMode ? 'from-gray-800 to-gray-700' : 'from-gray-100 to-gray-50'}`}>
-            <button
-              onClick={rejectRide}
-              className="flex-1 py-5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-3xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-            >
-              <XCircle className="mr-3" size={28} />
-              Odmítnout
-            </button>
-            <button
-              onClick={acceptRide}
-              className="flex-1 py-5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-3xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-            >
-              <CheckCircle className="mr-3" size={28} />
-              Přijmout
-            </button>
-          </div>
+        {/* Fixed bottom buttons */}
+        <div className={`flex p-4 space-x-3 bg-gradient-to-t ${darkMode ? 'from-gray-800 to-gray-700' : 'from-gray-100 to-gray-50'} border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <button
+            onClick={rejectRide}
+            className="flex-1 py-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+          >
+            <XCircle className="mr-2" size={20} />
+            Odmítnout
+          </button>
+          <button
+            onClick={acceptRide}
+            className="flex-1 py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-2xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+          >
+            <CheckCircle className="mr-2" size={20} />
+            Přijmout
+          </button>
         </div>
       </div>
     </div>
@@ -746,7 +683,7 @@ const TaxiDriverApp = () => {
 
   // Obrazovka aktivní jízdy
   const ActiveRideScreen = () => (
-    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-20 overflow-y-auto`}>
+    <div className={`flex-1 flex flex-col ${currentTheme.bg} pb-16 overflow-y-auto`}>
       <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 shadow-lg">
         <div className="flex justify-between items-center">
           <div>
@@ -883,7 +820,7 @@ const TaxiDriverApp = () => {
 
   // Historie
   const HistoryScreen = () => (
-    <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+    <div className={`flex-1 ${currentTheme.bg} pb-16 overflow-y-auto`}>
       <div className={`${currentTheme.cardBg} p-6 ${currentTheme.shadow}`}>
         <div className="flex justify-between items-center">
           <div>
@@ -1013,7 +950,7 @@ const TaxiDriverApp = () => {
     };
 
     return (
-      <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+      <div className={`flex-1 ${currentTheme.bg} pb-16 overflow-y-auto`}>
         <div className={`${currentTheme.cardBg} p-6 ${currentTheme.shadow}`}>
           <div className="flex justify-between items-center">
             <div>
@@ -1312,7 +1249,7 @@ const TaxiDriverApp = () => {
 
   // Nastavení
   const SettingsScreen = () => (
-    <div className={`flex-1 ${currentTheme.bg} pb-20 overflow-y-auto`}>
+    <div className={`flex-1 ${currentTheme.bg} pb-16 overflow-y-auto`}>
       <div className={`${currentTheme.cardBg} p-6 ${currentTheme.shadow}`}>
         <h2 className={`text-3xl font-bold ${currentTheme.textPrimary}`}>Nastavení</h2>
       </div>
@@ -1490,7 +1427,7 @@ const TaxiDriverApp = () => {
       {/* Modal z mapou na cały ekran */}
       {renderMapModal()}
 
-      {/* Spodní navigace */}
+      {/* Spodní navigace - kompaktní */}
       <div 
         className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto ${currentTheme.navBg} border-t ${currentTheme.navBorder} z-40`}
         style={{
@@ -1499,7 +1436,7 @@ const TaxiDriverApp = () => {
             : '0 -4px 12px rgba(0, 0, 0, 0.15), 0 -2px 4px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <div className="flex justify-around py-3">
+        <div className="flex justify-around py-2">
           {[
             { icon: Home, label: 'Domů', screen: 'home' },
             { icon: History, label: 'Historie', screen: 'history' },
@@ -1509,20 +1446,20 @@ const TaxiDriverApp = () => {
             <button
               key={index}
               onClick={() => setCurrentScreen(item.screen)}
-              className={`flex flex-col items-center p-3 transition-all duration-300 ${
+              className={`flex flex-col items-center p-2 transition-all duration-300 ${
                 currentScreen === item.screen 
-                  ? 'text-teal-600 scale-110' 
+                  ? 'text-teal-600 scale-105' 
                   : `${currentTheme.textMuted} hover:${currentTheme.textSecondary}`
               }`}
             >
               <item.icon 
-                size={26} 
+                size={20} 
                 strokeWidth={currentScreen === item.screen ? 2.8 : 2.2}
                 className={`transition-all duration-300 ${
                   currentScreen === item.screen ? 'drop-shadow-sm' : ''
                 }`}
               />
-              <span className={`text-xs mt-2 font-medium transition-all duration-300 ${
+              <span className={`text-xs mt-1 font-medium transition-all duration-300 ${
                 currentScreen === item.screen ? 'font-semibold' : ''
               }`}>
                 {item.label}
@@ -1536,4 +1473,3 @@ const TaxiDriverApp = () => {
 };
 
 export default TaxiDriverApp;
-
