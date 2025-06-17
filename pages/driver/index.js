@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Navigation, Phone, MessageSquare, DollarSign, Clock, Calendar, Power, CheckCircle, XCircle, AlertCircle, User, Star, TrendingUp, Home, History, Camera, FileText, Settings, Bell, Users, Car, Plane } from 'lucide-react';
+import { MapPin, Navigation, Phone, MessageSquare, DollarSign, Clock, Calendar, Power, CheckCircle, XCircle, AlertCircle, User, Star, TrendingUp, Home, History, Camera, FileText, Settings, Bell, Users, Car, Plane, Undo } from 'lucide-react';
 
 const TaxiDriverApp = () => {
   const [isOnline, setIsOnline] = useState(false);
@@ -17,6 +17,7 @@ const TaxiDriverApp = () => {
     const hour = new Date().getHours();
     return hour >= 20 || hour < 6;
   });
+  const [isMapPanelMinimized, setIsMapPanelMinimized] = useState(false);
   const [driverProfile, setDriverProfile] = useState({
     name: 'Jan Novák',
     phone: '+420 777 123 456',
@@ -328,25 +329,6 @@ const TaxiDriverApp = () => {
           </div>
         ) : (
           <div className="p-6">
-            {/* <h3 className={`${currentTheme.textSecondary} text-sm font-semibold mb-6`}>Poslední jízdy</h3>
-            <div className="space-y-4">
-              {[
-                { time: '14:32', hotel: 'Augustine', to: 'Letiště', price: 700 },
-                { time: '12:15', hotel: 'Hilton', to: 'Hlavní nádraží', price: 280 },
-                { time: '10:45', hotel: 'Four Seasons', to: 'Václavské náměstí', price: 180 }
-              ].map((ride, index) => (
-                <div key={index} className={`${currentTheme.cardBg} rounded-2xl ${currentTheme.shadow} hover:${currentTheme.shadowHover} p-6 transition-all duration-300`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className={`font-semibold ${currentTheme.textPrimary} text-lg`}>{ride.hotel} → {ride.to}</p>
-                      <p className={`text-sm ${currentTheme.textMuted} mt-1`}>Dnes {ride.time}</p>
-                    </div>
-                    <p className="font-bold text-teal-600 text-xl">{ride.price} Kč</p>
-                  </div>
-                </div>
-              ))}
-            </div> */}
-            
             <div className={`mt-6 bg-gradient-to-r ${darkMode ? 'from-teal-900 to-teal-800' : 'from-teal-50 to-teal-100'} rounded-2xl p-6 border ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
               <p className={`text-sm ${darkMode ? 'text-teal-300' : 'text-teal-800'} font-medium text-center`}>
                 Začněte vydělávat! Přepněte se do režimu ONLINE
@@ -405,6 +387,7 @@ const TaxiDriverApp = () => {
 
     const closeMapModal = () => {
       setShowMapModal(false);
+      setIsMapPanelMinimized(false); // Reset minimalizacji
       setCurrentScreen('active-ride');
     };
 
@@ -432,38 +415,137 @@ const TaxiDriverApp = () => {
             className="w-full h-full object-cover"
           />
           
-          <div className={`absolute top-6 left-6 ${currentTheme.cardBg} rounded-3xl p-6 shadow-xl max-w-sm border border-gray-100`}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className={`font-bold ${currentTheme.textPrimary} text-xl`}>Aktivní jízda</h3>
-              <button 
-                onClick={closeMapModal}
-                className="p-2 hover:bg-gray-100 rounded-2xl transition-colors"
-              >
-                <XCircle size={20} className={`${currentTheme.textMuted}`} />
-              </button>
+          <div className={`absolute top-6 left-6 ${currentTheme.cardBg} rounded-3xl shadow-xl border border-gray-100 transition-all duration-300 ${
+            isMapPanelMinimized ? 'p-4 max-w-xs' : 'p-6 max-w-sm'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold ${currentTheme.textPrimary} ${isMapPanelMinimized ? 'text-lg' : 'text-xl'}`}>
+                {isMapPanelMinimized ? 'Jízda' : 'Aktivní jízda'}
+              </h3>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => setIsMapPanelMinimized(!isMapPanelMinimized)}
+                  className={`p-2 hover:bg-gray-100 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-2xl transition-colors`}
+                  title={isMapPanelMinimized ? 'Rozbalit panel' : 'Skrýt panel'}
+                >
+                  {isMapPanelMinimized ? (
+                    <div className="w-4 h-4 flex flex-col space-y-0.5">
+                      <div className={`h-0.5 w-full ${currentTheme.textMuted} bg-current rounded`}></div>
+                      <div className={`h-0.5 w-full ${currentTheme.textMuted} bg-current rounded`}></div>
+                      <div className={`h-0.5 w-full ${currentTheme.textMuted} bg-current rounded`}></div>
+                    </div>
+                  ) : (
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <div className={`w-3 h-0.5 ${currentTheme.textMuted} bg-current rounded`}></div>
+                    </div>
+                  )}
+                </button>
+                <button 
+                  onClick={closeMapModal}
+                  className={`p-2 hover:bg-gray-100 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded-2xl transition-colors`}
+                >
+                  <XCircle size={20} className={`${currentTheme.textMuted}`} />
+                </button>
+              </div>
             </div>
             
-            {/* Route with animated dots */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center">
-                <div className="relative mr-4">
-                  <div className={`w-4 h-4 rounded-full ${
-                    rideStatus !== 'waiting' ? 'bg-teal-500' : 'bg-gray-300'
-                  } transition-colors duration-300`}></div>
-                  {rideStatus !== 'waiting' && (
-                    <div className="absolute inset-0 bg-teal-500 rounded-full animate-ping opacity-75"></div>
-                  )}
+            {!isMapPanelMinimized ? (
+              /* Rozbalený panel - pełne informacje */
+              <>
+                {/* Route with animated dots */}
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center">
+                    <div className="relative mr-4">
+                      <div className={`w-4 h-4 rounded-full ${
+                        rideStatus !== 'waiting' ? 'bg-teal-500' : 'bg-gray-300'
+                      } transition-colors duration-300`}></div>
+                      {rideStatus !== 'waiting' && (
+                        <div className="absolute inset-0 bg-teal-500 rounded-full animate-ping opacity-75"></div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-semibold ${currentTheme.textPrimary}`}>Hotel Augustine</p>
+                      <p className={`text-xs ${currentTheme.textMuted}`}>Výchozí bod</p>
+                    </div>
+                  </div>
+                  
+                  {/* Animated connecting line */}
+                  <div className="ml-2 flex items-center">
+                    <div className="w-0.5 h-6 bg-gradient-to-b from-teal-400 to-red-400 mr-4 relative overflow-hidden">
+                      <div className="absolute inset-0 w-full bg-gradient-to-b from-white to-transparent opacity-50 animate-pulse"></div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-1 h-1 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-1 h-1 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-1 h-1 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                      <p className={`text-xs ${currentTheme.textMuted}`}>18.2 km • 25 min</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="relative mr-4">
+                      <div className={`w-4 h-4 rounded-full ${
+                        rideStatus === 'in_progress' ? 'bg-red-500' : 'bg-gray-300'
+                      } transition-colors duration-300`}></div>
+                      {rideStatus === 'in_progress' && (
+                        <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-75"></div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-semibold ${currentTheme.textPrimary}`}>Letiště Václava Havla</p>
+                      <p className={`text-xs ${currentTheme.textMuted}`}>Cílové místo</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className={`font-semibold ${currentTheme.textPrimary}`}>Hotel Augustine</p>
-                  <p className={`text-xs ${currentTheme.textMuted}`}>Výchozí bod</p>
+                
+                {/* Status with animated background */}
+                <div className={`p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-2xl relative overflow-hidden`}>
+                  {/* Animated background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-blue-500/10 animate-pulse"></div>
+                  <div className="relative">
+                    <p className={`text-xs ${currentTheme.textMuted} mb-2 uppercase tracking-wide`}>Status:</p>
+                    <p className={`font-bold ${currentTheme.textPrimary} text-lg`}>
+                      {rideStatus === 'waiting' && (
+                        <span className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                          Jeďte k místu vyzvednutí
+                        </span>
+                      )}
+                      {rideStatus === 'picked_up' && (
+                        <span className="flex items-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                          Cestující na palubě
+                        </span>
+                      )}
+                      {rideStatus === 'in_progress' && (
+                        <span className="flex items-center">
+                          <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
+                          Na cestě k cíli
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              
-              {/* Animated connecting line */}
-              <div className="ml-2 flex items-center">
-                <div className="w-0.5 h-6 bg-gradient-to-b from-teal-400 to-red-400 mr-4 relative overflow-hidden">
-                  <div className="absolute inset-0 w-full bg-gradient-to-b from-white to-transparent opacity-50 animate-pulse"></div>
+              </>
+            ) : (
+              /* Minimalizowany panel - základní informace */
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className={`w-3 h-3 rounded-full mr-3 ${
+                      rideStatus === 'waiting' ? 'bg-blue-500 animate-pulse' :
+                      rideStatus === 'picked_up' ? 'bg-green-500 animate-pulse' :
+                      'bg-red-500 animate-pulse'
+                    }`}></div>
+                    <span className={`text-sm font-semibold ${currentTheme.textPrimary}`}>
+                      {rideStatus === 'waiting' && 'K vyzvednutí'}
+                      {rideStatus === 'picked_up' && 'Na palubě'}
+                      {rideStatus === 'in_progress' && 'K cíli'}
+                    </span>
+                  </div>
+                  <span className={`text-xs ${currentTheme.textMuted}`}>700 Kč</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
@@ -471,54 +553,14 @@ const TaxiDriverApp = () => {
                     <div className="w-1 h-1 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                     <div className="w-1 h-1 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
-                  <p className={`text-xs ${currentTheme.textMuted}`}>18.2 km • 25 min</p>
+                  <p className={`text-xs ${currentTheme.textMuted}`}>
+                    {rideStatus === 'waiting' && 'Augustine → Letiště'}
+                    {rideStatus === 'picked_up' && 'Augustine → Letiště'}
+                    {rideStatus === 'in_progress' && '18.2 km • 22 min'}
+                  </p>
                 </div>
               </div>
-              
-              <div className="flex items-center">
-                <div className="relative mr-4">
-                  <div className={`w-4 h-4 rounded-full ${
-                    rideStatus === 'in_progress' ? 'bg-red-500' : 'bg-gray-300'
-                  } transition-colors duration-300`}></div>
-                  {rideStatus === 'in_progress' && (
-                    <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-75"></div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className={`font-semibold ${currentTheme.textPrimary}`}>Letiště Václava Havla</p>
-                  <p className={`text-xs ${currentTheme.textMuted}`}>Cílové místo</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Status with animated background */}
-            <div className={`p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} rounded-2xl relative overflow-hidden`}>
-              {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-blue-500/10 animate-pulse"></div>
-              <div className="relative">
-                <p className={`text-xs ${currentTheme.textMuted} mb-2 uppercase tracking-wide`}>Status:</p>
-                <p className={`font-bold ${currentTheme.textPrimary} text-lg`}>
-                  {rideStatus === 'waiting' && (
-                    <span className="flex items-center">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                      Jeďte k místu vyzvednutí
-                    </span>
-                  )}
-                  {rideStatus === 'picked_up' && (
-                    <span className="flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                      Cestující na palubě
-                    </span>
-                  )}
-                  {rideStatus === 'in_progress' && (
-                    <span className="flex items-center">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                      Na cestě k cíli
-                    </span>
-                  )}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Animated earnings card */}
@@ -574,7 +616,7 @@ const TaxiDriverApp = () => {
               >
                 {/* Animated ring */}
                 <div className="absolute inset-0 rounded-full border-2 border-white opacity-30 animate-pulse"></div>
-                <Navigation size={30} strokeWidth={2.8} className="drop-shadow-sm" />
+                <Undo size={30} strokeWidth={2.8} className="drop-shadow-sm" />
               </button>
             </div>
           </div>
@@ -997,38 +1039,6 @@ const TaxiDriverApp = () => {
         </div>
 
         <div className="p-6 space-y-6">
-          {/* <div className={`${currentTheme.cardBg} p-8 rounded-3xl ${currentTheme.shadow}`}>
-            <h3 className={`font-bold ${currentTheme.textPrimary} mb-6 text-lg`}>Fotka vozidla</h3>
-            <div className="flex items-center space-x-6">
-              <div className={`w-24 h-24 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-2xl flex items-center justify-center`}>
-                {tempProfile.photo ? (
-                  <div className="text-center">
-                    <CheckCircle className="text-teal-600 mx-auto mb-2" size={28} />
-                    <span className="text-xs text-teal-600">Nahráno</span>
-                  </div>
-                ) : (
-                  <Camera className={`${currentTheme.textMuted}`} size={36} />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className={`font-semibold ${currentTheme.textPrimary} text-lg`}>
-                  {tempProfile.photo ? 'Fotka nahrána' : 'Žádná fotka'}
-                </p>
-                <p className={`text-sm ${currentTheme.textMuted} mt-2`}>
-                  Nahrajte fotografii vašeho vozidla
-                </p>
-                {isEditing && (
-                  <button
-                    onClick={handlePhotoUpload}
-                    className="mt-3 px-6 py-3 bg-teal-500 text-white rounded-2xl text-sm font-semibold hover:bg-teal-600 transition-colors"
-                  >
-                    {tempProfile.photo ? 'Změnit fotku' : 'Nahrát fotku'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div> */}
-
           <div className={`${currentTheme.cardBg} p-8 rounded-3xl ${currentTheme.shadow}`}>
             <h3 className={`font-bold ${currentTheme.textPrimary} mb-6 text-lg`}>Osobní údaje</h3>
             <div className="space-y-6">
