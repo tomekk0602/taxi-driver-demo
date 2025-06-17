@@ -254,7 +254,7 @@ const TaxiDriverApp = () => {
       </div>
 
       {/* Info o autě */}
-      <div className="mx-6 mb-6">
+      {/* <div className="mx-6 mb-6">
         <div 
           className={`${currentTheme.cardBg} rounded-3xl p-6 ${currentTheme.border}`}
           style={{
@@ -266,7 +266,7 @@ const TaxiDriverApp = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="mr-4">
-                {/* Zdjęcie samochodu */}
+               
                 <div className="w-20 h-12 bg-gray-200 rounded-2xl overflow-hidden">
                   <img 
                     src="/mercedes-s-class.jpg" 
@@ -296,7 +296,7 @@ const TaxiDriverApp = () => {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Seznam dostupných objednávek nebo poslední aktivity */}
       <div className="flex-1 overflow-y-auto">
@@ -1040,7 +1040,7 @@ const TaxiDriverApp = () => {
 
         <div className="p-6 space-y-6">
           <div className={`${currentTheme.cardBg} p-8 rounded-3xl ${currentTheme.shadow}`}>
-            <h3 className={`font-bold ${currentTheme.textPrimary} mb-6 text-lg`}>Osobní údaje</h3>
+            <h3 className={`font-bold ${currentTheme.textPrimary} mb-3 text-lg`}>Osobní údaje</h3>
             <div className="space-y-6">
               <div>
                 <label className={`text-sm ${currentTheme.textSecondary} font-medium`}>Jméno a příjmení</label>
