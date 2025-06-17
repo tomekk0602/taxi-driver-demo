@@ -4,7 +4,7 @@ import {
   Plus, Search, Filter, Bell, Moon, Sun, Menu, X, 
   CheckCircle, XCircle, Clock, MapPin, Car, Phone, 
   Edit, Trash2, Ban, UserCheck, DollarSign, TrendingUp,
-  Calendar, AlertTriangle, Send, Eye, EyeOff
+  Calendar, AlertTriangle, Send, Eye, EyeOff, Info
 } from 'lucide-react';
 
 const TaxiAdminApp = () => {
@@ -42,25 +42,49 @@ const TaxiAdminApp = () => {
   ]);
 
   const [hotels, setHotels] = useState([
-    { id: 1, name: 'Hotel Augustine', shortcut: 'aug', address: 'Letenská 12/33, Praha 1', routes: [
-      { destination: 'Letiště', price: 900, commission: 200 },
-      { destination: 'Hlavní nádraží', price: 500, commission: 100 },
-      { destination: 'Kongresové centrum', price: 400, commission: 80 }
-    ]},
-    { id: 2, name: 'Hotel Hilton', shortcut: 'hil', address: 'Pobřežní 1, Praha 8', routes: [
-      { destination: 'Letiště', price: 800, commission: 150 },
-      { destination: 'Wenceslas Square', price: 300, commission: 60 }
-    ]},
-    { id: 3, name: 'Four Seasons', shortcut: '4s', address: 'Veleslavínova 2a, Praha 1', routes: [
-      { destination: 'Letiště', price: 1200, commission: 300 },
-      { destination: 'Hlavní nádraží', price: 600, commission: 120 }
-    ]}
+    { 
+      id: 1, 
+      name: 'Hotel Augustine', 
+      shortcut: 'aug', 
+      address: 'Letenská 12/33, Praha 1',
+      hotelInfo: 'Luxusní 5hvězdičkový hotel v historickém centru Prahy. Součástí hotelu je klášter sv. Tomáše z 13. století. Hotel poskytuje prémiové služby a má vysoké nároky na kvalitu dopravy.',
+      conditions: 'Provize hotelu: 20% z celkové ceny jízdy\nProvize řidiče: 70% z celkové ceny\nProvize administrátora: 10%\n\nSpeciální podmínky:\n- Řidič musí být ve společenském oblečení\n- Vozidlo musí být čisté a luxusní třídy\n- Příjezd maximálně 5 minut před dohodnutým časem\n- Povinnost pomoci s bagáží',
+      routes: [
+        { destination: 'Letiště', price: 900, commission: 200 },
+        { destination: 'Hlavní nádraží', price: 500, commission: 100 },
+        { destination: 'Kongresové centrum', price: 400, commission: 80 }
+      ]
+    },
+    { 
+      id: 2, 
+      name: 'Hotel Hilton', 
+      shortcut: 'hil', 
+      address: 'Pobřežní 1, Praha 8',
+      hotelInfo: 'Mezinárodní hotelový řetězec poskytující komfortní ubytování pro business i leisure hosty. Nachází se v blízkosti centra města s výborným přístupem k hlavním atrakcím.',
+      conditions: 'Provize hotelu: 15% z celkové ceny jízdy\nProvize řidiče: 75% z celkové ceny\nProvize administrátora: 10%\n\nStandardní podmínky:\n- Čisté vozidlo\n- Příjezd včas\n- Profesionální chování řidiče',
+      routes: [
+        { destination: 'Letiště', price: 800, commission: 150 },
+        { destination: 'Wenceslas Square', price: 300, commission: 60 }
+      ]
+    },
+    { 
+      id: 3, 
+      name: 'Four Seasons', 
+      shortcut: '4s', 
+      address: 'Veleslavínova 2a, Praha 1',
+      hotelInfo: 'Exkluzivní 5hvězdičkový hotel s výhledem na Pražský hrad a Karlův most. Poskytuje nejluxusnější služby v Praze a má nejvyšší standardy pro všechny dodavatele služeb.',
+      conditions: 'Provize hotelu: 25% z celkové ceny jízdy\nProvize řidiče: 65% z celkové ceny\nProvize administrátora: 10%\n\nVIP podmínky:\n- Pouze vozidla Mercedes S-Class, BMW 7 Series nebo Audi A8\n- Řidič v tmavém obleku s kravatou\n- Příjezd přesně v dohodnutý čas\n- Otevření dveří hostům\n- Povinnost pomoci s bagáží\n- Tiché chování během jízdy',
+      routes: [
+        { destination: 'Letiště', price: 1200, commission: 300 },
+        { destination: 'Hlavní nádraží', price: 600, commission: 120 }
+      ]
+    }
   ]);
 
   const [activeOrders, setActiveOrders] = useState([
     { 
       id: 1, 
-      hotel: 'Augustine', 
+      hotel: 'Hotel Augustine', 
       destination: 'Letiště', 
       driver: 'Jan Novák', 
       status: 'in_progress', 
@@ -72,7 +96,7 @@ const TaxiAdminApp = () => {
     },
     { 
       id: 2, 
-      hotel: 'Hilton', 
+      hotel: 'Hotel Hilton', 
       destination: 'Hlavní nádraží', 
       driver: null, 
       status: 'waiting', 
@@ -99,6 +123,8 @@ const TaxiAdminApp = () => {
 
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showHotelInfoModal, setShowHotelInfoModal] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
 
   // Auto-assign orders after 15 minutes
   useEffect(() => {
@@ -124,6 +150,15 @@ const TaxiAdminApp = () => {
 
     return () => clearInterval(interval);
   }, [drivers]);
+
+  // Function to show hotel info
+  const showHotelInfo = (hotelName) => {
+    const hotel = hotels.find(h => h.name === hotelName);
+    if (hotel) {
+      setSelectedHotel(hotel);
+      setShowHotelInfoModal(true);
+    }
+  };
 
   // Time remaining helper
   const getTimeRemaining = (order) => {
@@ -185,6 +220,99 @@ const TaxiAdminApp = () => {
     { id: 'settings', label: 'Nastavení', icon: Settings },
     { id: 'messages', label: 'Zprávy', icon: MessageSquare }
   ];
+
+  // Hotel Info Modal
+  const HotelInfoModal = () => {
+    if (!showHotelInfoModal || !selectedHotel) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className={`${currentTheme.cardBg} rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl`}>
+          <div className="flex justify-between items-center p-8 border-b border-gray-100 flex-shrink-0">
+            <h3 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Informace o hotelu</h3>
+            <button 
+              onClick={() => setShowHotelInfoModal(false)}
+              className={`p-2 rounded-full hover:${darkMode ? 'bg-gray-700' : 'bg-gray-100'} transition-colors`}
+            >
+              <X className={currentTheme.textMuted} size={24} />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-8">
+            <div className="space-y-8">
+              {/* Hotel Header */}
+              <div className={`p-6 ${darkMode ? 'bg-teal-900/30' : 'bg-teal-50'} rounded-2xl border ${darkMode ? 'border-teal-800' : 'border-teal-100'}`}>
+                <h4 className={`text-xl font-bold ${currentTheme.textPrimary} mb-2`}>{selectedHotel.name}</h4>
+                <div className="flex items-center space-x-2 text-sm">
+                  <MapPin size={14} className={currentTheme.textMuted} />
+                  <span className={currentTheme.textSecondary}>{selectedHotel.address}</span>
+                </div>
+                <div className="flex items-center space-x-4 mt-3">
+                  <span className={`px-3 py-1 ${darkMode ? 'bg-teal-800 text-teal-300' : 'bg-teal-100 text-teal-800'} rounded-full text-xs font-medium`}>
+                    Zkratka: {selectedHotel.shortcut}
+                  </span>
+                </div>
+              </div>
+
+              {/* Hotel Info */}
+              <div>
+                <h5 className={`text-lg font-semibold ${currentTheme.textPrimary} mb-4 flex items-center`}>
+                  <Building2 size={20} className="mr-2 text-teal-600" />
+                  O hotelu
+                </h5>
+                <div className={`p-6 ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'} rounded-2xl`}>
+                  <p className={`${currentTheme.textSecondary} leading-relaxed`}>
+                    {selectedHotel.hotelInfo}
+                  </p>
+                </div>
+              </div>
+
+              {/* Conditions */}
+              <div>
+                <h5 className={`text-lg font-semibold ${currentTheme.textPrimary} mb-4 flex items-center`}>
+                  <DollarSign size={20} className="mr-2 text-green-600" />
+                  Podmínky a provize
+                </h5>
+                <div className={`p-6 ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'} rounded-2xl`}>
+                  <pre className={`${currentTheme.textSecondary} leading-relaxed whitespace-pre-wrap font-sans`}>
+                    {selectedHotel.conditions}
+                  </pre>
+                </div>
+              </div>
+
+              {/* Routes */}
+              <div>
+                <h5 className={`text-lg font-semibold ${currentTheme.textPrimary} mb-4 flex items-center`}>
+                  <Route size={20} className="mr-2 text-blue-600" />
+                  Dostupné trasy
+                </h5>
+                <div className="space-y-3">
+                  {selectedHotel.routes.map((route, index) => (
+                    <div key={index} className={`p-4 border ${currentTheme.border} rounded-2xl flex justify-between items-center`}>
+                      <span className={`font-medium ${currentTheme.textPrimary}`}>{route.destination}</span>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-teal-600">{route.price} Kč</div>
+                        <div className="text-xs text-gray-500">Provize: {route.commission} Kč</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8 border-t border-gray-100 flex-shrink-0">
+            <button 
+              onClick={() => setShowHotelInfoModal(false)}
+              className={`w-full px-6 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors font-medium`}
+            >
+              Zavřít
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Assign Driver Modal
   const AssignDriverModal = () => {
@@ -299,7 +427,7 @@ const TaxiAdminApp = () => {
     <div className="mt-8 flex space-x-4 flex-shrink-0">
       <button 
         onClick={() => setShowAssignModal(false)}
-        className={`flex-1 px-6 py-4 border ${currentTheme.borderStrong} ${currentTheme.textSecondary} rounded-2xl hover:${darkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors font-medium`}
+        className={`flex-1 px-6 py-4 border ${currentTheme.border} ${currentTheme.textSecondary} rounded-2xl hover:${darkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors font-medium`}
       >
         Zrušit
       </button>
@@ -426,9 +554,18 @@ const TaxiAdminApp = () => {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
-                <h4 className={`font-semibold ${currentTheme.textPrimary} text-lg`}>
-                  {order.hotel} → {order.destination}
-                </h4>
+                <div className="flex items-center space-x-3">
+                  <h4 className={`font-semibold ${currentTheme.textPrimary} text-lg`}>
+                    {order.hotel} → {order.destination}
+                  </h4>
+                  <button
+                    onClick={() => showHotelInfo(order.hotel)}
+                    className={`p-2 rounded-full ${darkMode ? 'bg-teal-800 hover:bg-teal-700' : 'bg-teal-100 hover:bg-teal-200'} transition-colors group`}
+                    title="Informace o hotelu"
+                  >
+                    <Info size={16} className={`${darkMode ? 'text-teal-300' : 'text-teal-600'} group-hover:${darkMode ? 'text-teal-200' : 'text-teal-700'}`} />
+                  </button>
+                </div>
                 <span className={`px-3 py-2 rounded-full text-xs font-medium ${
                   order.status === 'waiting' ? 'bg-amber-100 text-amber-800' :
                   order.status === 'in_progress' ? 'bg-teal-100 text-teal-800' :
@@ -687,10 +824,19 @@ const TaxiAdminApp = () => {
           {activeOrders.slice(0, 5).map(order => (
             <div key={order.id} className={`p-6 border rounded-2xl ${currentTheme.border} ${currentTheme.hover} transition-colors`}>
               <div className="flex justify-between items-center">
-                <div>
-                  <p className={`font-semibold ${currentTheme.textPrimary} mb-1`}>
-                    {order.hotel} → {order.destination}
-                  </p>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-1">
+                    <p className={`font-semibold ${currentTheme.textPrimary}`}>
+                      {order.hotel} → {order.destination}
+                    </p>
+                    <button
+                      onClick={() => showHotelInfo(order.hotel)}
+                      className={`p-1.5 rounded-full ${darkMode ? 'bg-teal-800 hover:bg-teal-700' : 'bg-teal-100 hover:bg-teal-200'} transition-colors group`}
+                      title="Informace o hotelu"
+                    >
+                      <Info size={14} className={`${darkMode ? 'text-teal-300' : 'text-teal-600'} group-hover:${darkMode ? 'text-teal-200' : 'text-teal-700'}`} />
+                    </button>
+                  </div>
                   <p className={`text-sm ${currentTheme.textSecondary}`}>
                     {order.driver ? `Řidič: ${order.driver}` : 'Čeká na řidiče'} • {order.time}
                   </p>
@@ -1147,6 +1293,7 @@ const TaxiAdminApp = () => {
       {/* Modals */}
       <QuickOrderModal />
       <AssignDriverModal />
+      <HotelInfoModal />
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
@@ -1160,4 +1307,6 @@ const TaxiAdminApp = () => {
 };
 
 export default TaxiAdminApp;
+
+
 
