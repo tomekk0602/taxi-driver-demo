@@ -22,10 +22,7 @@ const TaxiAdminApp = () => {
       setSidebarOpen(e.matches);
     };
 
-    // Nastavit při prvním načtení
     setSidebarOpen(mediaQuery.matches);
-
-    // Poslouchat změny velikosti
     mediaQuery.addEventListener('change', handleResize);
     return () => mediaQuery.removeEventListener('change', handleResize);
   }, []);
@@ -35,13 +32,13 @@ const TaxiAdminApp = () => {
 
   // Demo data
   const [drivers, setDrivers] = useState([
-    { id: 1, name: 'Jan Novák', phone: '+420 777 123 456', car: 'Škoda Superb', status: 'online', type: 'standard', approved: true, banned: false },
-    { id: 2, name: 'Petr Svoboda', phone: '+420 777 234 567', car: 'Mercedes V-Class', status: 'online', type: 'minivan', approved: true, banned: false },
-    { id: 3, name: 'Marie Dvořáková', phone: '+420 777 345 678', car: 'Toyota Camry', status: 'online', type: 'standard', approved: true, banned: false },
-    { id: 4, name: 'Pavel Novotný', phone: '+420 777 456 789', car: 'Volkswagen Caravelle', status: 'busy', type: 'minivan', approved: true, banned: false },
-    { id: 5, name: 'Tomáš Černý', phone: '+420 777 567 890', car: 'BMW 5 Series', status: 'offline', type: 'standard', approved: true, banned: false },
-    { id: 6, name: 'Anna Svobodová', phone: '+420 777 678 901', car: 'Audi A6', status: 'online', type: 'standard', approved: false, banned: false },
-    { id: 7, name: 'David Procházka', phone: '+420 777 789 012', car: 'Ford Transit', status: 'online', type: 'minivan', approved: true, banned: true }
+    { id: 1, name: 'Jan Novák', phone: '+420 777 123 456', car: 'Mercedes S-Class', carImage: '/mercedes-s-class.jpg', status: 'online', type: 'standard', approved: true, banned: false },
+    { id: 2, name: 'Petr Svoboda', phone: '+420 777 234 567', car: 'Mercedes V-Class', carImage: '/mercedes-v-class.webp', status: 'online', type: 'luxury-van', approved: true, banned: false },
+    { id: 3, name: 'Marie Dvořáková', phone: '+420 777 345 678', car: 'BMW 7 Series', carImage: '/bmw-7-series.webp', status: 'online', type: 'standard', approved: true, banned: false },
+    { id: 4, name: 'Pavel Novotný', phone: '+420 777 456 789', car: 'Mercedes Sprinter', carImage: '/mercedes-sprinter.webp', status: 'busy', type: 'luxury-van', approved: true, banned: false },
+    { id: 5, name: 'Tomáš Černý', phone: '+420 777 567 890', car: 'Audi A8', carImage: '/audi-a8.webp', status: 'offline', type: 'standard', approved: true, banned: false },
+    { id: 6, name: 'Anna Svobodová', phone: '+420 777 678 901', car: 'BMW X7', carImage: '/bmw-x7.webp', status: 'online', type: 'standard', approved: false, banned: false },
+    { id: 7, name: 'David Procházka', phone: '+420 777 789 012', car: 'Škoda Superb', carImage: '/skoda-superb.webp', status: 'online', type: 'standard', approved: true, banned: true }
   ]);
 
   const [hotels, setHotels] = useState([
@@ -68,7 +65,7 @@ const TaxiAdminApp = () => {
       driver: 'Jan Novák', 
       status: 'in_progress', 
       time: '14:30',
-      createdAt: Date.now() - 300000, // 5 minut temu
+      createdAt: Date.now() - 300000,
       assignedAt: Date.now() - 240000,
       price: 900,
       commission: 200
@@ -80,9 +77,9 @@ const TaxiAdminApp = () => {
       driver: null, 
       status: 'waiting', 
       time: '14:45',
-      createdAt: Date.now() - 120000, // 2 minuty temu
+      createdAt: Date.now() - 120000,
       assignedAt: null,
-      autoAssignAt: Date.now() - 120000 + 900000, // 15 minut od utworzenia
+      autoAssignAt: Date.now() - 120000 + 900000,
       price: 500,
       commission: 100
     },
@@ -93,7 +90,7 @@ const TaxiAdminApp = () => {
       driver: 'Petr Svoboda', 
       status: 'completed', 
       time: '13:15',
-      createdAt: Date.now() - 3600000, // 1 godzinę temu
+      createdAt: Date.now() - 3600000,
       assignedAt: Date.now() - 3500000,
       price: 1200,
       commission: 300
@@ -109,7 +106,6 @@ const TaxiAdminApp = () => {
       setActiveOrders(prevOrders => {
         return prevOrders.map(order => {
           if (order.status === 'waiting' && !order.driver && order.autoAssignAt <= Date.now()) {
-            // Auto-assign to first available online driver
             const availableDrivers = drivers.filter(d => d.status === 'online' && d.approved && !d.banned);
             if (availableDrivers.length > 0) {
               const assignedDriver = availableDrivers[0];
@@ -138,6 +134,7 @@ const TaxiAdminApp = () => {
     return { minutes, seconds, total: remaining };
   };
 
+  // Catch Transfer inspired theme
   const theme = {
     light: {
       bg: 'bg-gray-50',
@@ -145,23 +142,35 @@ const TaxiAdminApp = () => {
       sidebarBg: 'bg-white',
       textPrimary: 'text-gray-900',
       textSecondary: 'text-gray-600',
-      textMuted: 'text-gray-500',
-      border: 'border-gray-200',
+      textMuted: 'text-gray-400',
+      border: 'border-gray-100',
       hover: 'hover:bg-gray-50',
-      input: 'bg-white border-gray-300',
-      shadow: 'shadow-sm'
+      input: 'bg-white border-gray-200 focus:border-teal-400 focus:ring-2 focus:ring-teal-100',
+      shadow: 'shadow-sm',
+      primary: 'bg-teal-400',
+      primaryHover: 'hover:bg-teal-500',
+      primaryText: 'text-teal-600',
+      success: 'text-teal-600',
+      warning: 'text-amber-500',
+      danger: 'text-red-500'
     },
     dark: {
       bg: 'bg-gray-900',
-      cardBg: 'bg-gray-800',
+      cardBg: 'bg-gray-800', 
       sidebarBg: 'bg-gray-800',
       textPrimary: 'text-gray-100',
       textSecondary: 'text-gray-300',
       textMuted: 'text-gray-400',
       border: 'border-gray-700',
       hover: 'hover:bg-gray-700',
-      input: 'bg-gray-700 border-gray-600',
-      shadow: 'shadow-lg shadow-black/20'
+      input: 'bg-gray-700 border-gray-600 focus:border-teal-400',
+      shadow: 'shadow-lg shadow-black/20',
+      primary: 'bg-teal-500',
+      primaryHover: 'hover:bg-teal-600', 
+      primaryText: 'text-teal-400',
+      success: 'text-teal-400',
+      warning: 'text-amber-400',
+      danger: 'text-red-400'
     }
   };
 
@@ -195,76 +204,86 @@ const TaxiAdminApp = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className={`${currentTheme.cardBg} rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col p-6 ${currentTheme.shadow}`}>
-          <div className="flex justify-between items-center mb-6 flex-shrink-0">
-            <h3 className={`text-xl font-bold ${currentTheme.textPrimary}`}>Přidělit řidiče objednávce</h3>
-            <button onClick={() => setShowAssignModal(false)}>
+        <div className={`${currentTheme.cardBg} rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col p-8 shadow-2xl`}>
+          <div className="flex justify-between items-center mb-8 flex-shrink-0">
+            <h3 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Přidělit řidiče</h3>
+            <button 
+              onClick={() => setShowAssignModal(false)}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
               <X className={currentTheme.textMuted} size={24} />
             </button>
           </div>
 
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 flex-shrink-0">
-            <p className={`text-sm font-medium ${currentTheme.textSecondary} mb-1`}>Objednávka:</p>
-            <p className={`text-lg font-bold ${currentTheme.textPrimary}`}>
+          <div className="mb-8 p-6 bg-teal-50 rounded-2xl border border-teal-100 flex-shrink-0">
+            <p className={`text-sm font-medium ${currentTheme.textSecondary} mb-2`}>Objednávka:</p>
+            <p className={`text-xl font-bold ${currentTheme.textPrimary}`}>
               {selectedOrder.hotel} → {selectedOrder.destination}
             </p>
-            <div className="flex justify-between mt-2 text-sm">
-              <span className={currentTheme.textMuted}>Cena: <span className="font-semibold text-green-600">{selectedOrder.price} Kč</span></span>
+            <div className="flex justify-between mt-4 text-sm">
+              <span className={currentTheme.textMuted}>Cena: <span className="font-semibold text-teal-600">{selectedOrder.price} Kč</span></span>
               <span className={currentTheme.textMuted}>Provize: <span className="font-semibold">{selectedOrder.commission} Kč</span></span>
             </div>
           </div>
 
           <div className="flex flex-col flex-1 min-h-0">
-            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+            <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <p className={`text-lg font-semibold ${currentTheme.textSecondary}`}>
                 Dostupní řidiči
               </p>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <span className="px-4 py-2 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">
                 {availableDrivers.length} online
               </span>
             </div>
             
             {availableDrivers.length === 0 ? (
-              <div className="text-center py-8 flex-1 flex flex-col justify-center">
-                <Users className={`mx-auto mb-3 ${currentTheme.textMuted}`} size={48} />
-                <p className={`${currentTheme.textMuted} mb-2`}>Žádní dostupní řidiči online</p>
-                <p className="text-sm text-gray-400">Objednávka bude automaticky přidělena, až bude řidič k dispozici</p>
+              <div className="text-center py-12 flex-1 flex flex-col justify-center">
+                <Users className={`mx-auto mb-4 ${currentTheme.textMuted}`} size={48} />
+                <p className={`${currentTheme.textMuted} mb-2 text-lg`}>Žádní dostupní řidiči</p>
+                <p className="text-sm text-gray-400">Objednávka bude automaticky přidělena</p>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(90vh - 300px)' }}>
-                <div className="space-y-3">
+              <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(90vh - 350px)' }}>
+                <div className="space-y-4">
                   {availableDrivers.map(driver => (
                     <button
                       key={driver.id}
                       onClick={() => assignDriver(driver.name)}
-                      className={`w-full p-4 text-left rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group`}
+                      className={`w-full p-6 text-left rounded-2xl border-2 border-gray-100 hover:border-teal-300 hover:bg-teal-50 transition-all duration-200 group`}
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold">{driver.name.charAt(0)}</span>
+                          <div className="flex items-center space-x-4 mb-3">
+                            <div className="w-12 h-12 bg-teal-400 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-lg">{driver.name.charAt(0)}</span>
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900 group-hover:text-blue-700">{driver.name}</p>
+                              <p className="font-semibold text-gray-900 group-hover:text-teal-700 text-lg">{driver.name}</p>
                               <p className="text-sm text-gray-500">{driver.phone}</p>
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Car size={16} className="text-gray-400" />
-                              <span className="text-sm text-gray-600">{driver.car}</span>
+                            <div className="flex items-center space-x-3">
+                              {/* Car image placeholder */}
+                              <div className="w-12 h-8 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                                <img 
+                                  src={driver.carImage} 
+                                  alt={driver.car}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                                <Car size={16} className="text-gray-400" style={{ display: 'none' }} />
+                              </div>
+                              <span className="text-sm text-gray-600 font-medium">{driver.car}</span>
                             </div>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              driver.type === 'luxury-van' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                             }`}>
-                              {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
+                              {driver.type === 'luxury-van' ? 'Luxury Van' : 'Standard'}
                             </span>
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-blue-500 group-hover:bg-blue-500 transition-all duration-200 flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-white"></div>
                           </div>
                         </div>
                       </div>
@@ -275,18 +294,13 @@ const TaxiAdminApp = () => {
             )}
           </div>
 
-          <div className="mt-6 flex space-x-3 flex-shrink-0">
+          <div className="mt-8 flex space-x-4 flex-shrink-0">
             <button 
               onClick={() => setShowAssignModal(false)}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-6 py-4 border border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-colors font-medium"
             >
               Zrušit
             </button>
-            {availableDrivers.length > 0 && (
-              <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed">
-                Vyberte řidiče výše
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -300,7 +314,6 @@ const TaxiAdminApp = () => {
 
     const handleQuickInput = (input) => {
       setQuickInput(input);
-      // Parse input like "aug" or "augustine"
       const hotel = hotels.find(h => 
         h.shortcut.toLowerCase() === input.toLowerCase() || 
         h.name.toLowerCase().includes(input.toLowerCase())
@@ -324,7 +337,7 @@ const TaxiAdminApp = () => {
         commission: route.commission,
         createdAt: now,
         assignedAt: null,
-        autoAssignAt: now + 900000 // 15 minut od teď
+        autoAssignAt: now + 900000
       };
       
       setActiveOrders([newOrder, ...activeOrders]);
@@ -337,45 +350,48 @@ const TaxiAdminApp = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className={`${currentTheme.cardBg} rounded-xl max-w-md w-full p-6 ${currentTheme.shadow}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary}`}>Rychlá objednávka</h3>
-            <button onClick={() => setShowQuickOrder(false)}>
+        <div className={`${currentTheme.cardBg} rounded-3xl max-w-md w-full p-8 shadow-2xl`}>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Rychlá objednávka</h3>
+            <button 
+              onClick={() => setShowQuickOrder(false)}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
               <X className={currentTheme.textMuted} size={20} />
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className={`text-sm font-medium ${currentTheme.textSecondary}`}>Zadejte zkratku hotelu</label>
+              <label className={`text-sm font-medium ${currentTheme.textSecondary} mb-3 block`}>Zadejte zkratku hotelu</label>
               <input
                 type="text"
                 value={quickInput}
                 onChange={(e) => handleQuickInput(e.target.value)}
                 placeholder="aug, hil, 4s..."
-                className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary} mt-1`}
+                className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
               />
-              <p className={`text-xs ${currentTheme.textMuted} mt-1`}>
+              <p className={`text-xs ${currentTheme.textMuted} mt-2`}>
                 Příklad: aug = Augustine, hil = Hilton
               </p>
             </div>
 
             {selectedRoute && (
               <div>
-                <h4 className={`font-semibold ${currentTheme.textPrimary} mb-2`}>
+                <h4 className={`font-semibold ${currentTheme.textPrimary} mb-4 text-lg`}>
                   {selectedRoute.hotel.name}
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {selectedRoute.routes.map((route, index) => (
                     <button
                       key={index}
                       onClick={() => createOrder(route)}
-                      className={`w-full p-3 text-left rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-all`}
+                      className={`w-full p-4 text-left rounded-2xl border-2 border-teal-200 hover:border-teal-400 hover:bg-teal-50 transition-all`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">{route.destination}</span>
+                        <span className="font-medium text-lg">{route.destination}</span>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-green-600">{route.price} Kč</div>
+                          <div className="text-xl font-bold text-teal-600">{route.price} Kč</div>
                           <div className="text-xs text-gray-500">Provize: {route.commission} Kč</div>
                         </div>
                       </div>
@@ -400,20 +416,20 @@ const TaxiAdminApp = () => {
       const timeRemaining = getTimeRemaining(order);
       
       return (
-        <div className={`${currentTheme.cardBg} p-4 rounded-lg ${currentTheme.shadow} border-l-4 ${
-          order.status === 'waiting' ? 'border-yellow-400' :
-          order.status === 'in_progress' ? 'border-blue-400' :
+        <div className={`${currentTheme.cardBg} p-6 rounded-3xl shadow-sm border-l-4 ${
+          order.status === 'waiting' ? 'border-amber-400' :
+          order.status === 'in_progress' ? 'border-teal-400' :
           'border-green-400'
         }`}>
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className={`font-semibold ${currentTheme.textPrimary}`}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className={`font-semibold ${currentTheme.textPrimary} text-lg`}>
                   {order.hotel} → {order.destination}
                 </h4>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  order.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
-                  order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                <span className={`px-3 py-2 rounded-full text-xs font-medium ${
+                  order.status === 'waiting' ? 'bg-amber-100 text-amber-800' :
+                  order.status === 'in_progress' ? 'bg-teal-100 text-teal-800' :
                   'bg-green-100 text-green-800'
                 }`}>
                   {order.status === 'waiting' ? 'Čeká na řidiče' : 
@@ -421,43 +437,42 @@ const TaxiAdminApp = () => {
                 </span>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-6 text-sm">
                 <div>
                   <p className={currentTheme.textMuted}>Čas objednávky:</p>
-                  <p className={currentTheme.textSecondary}>{order.time}</p>
+                  <p className={`${currentTheme.textSecondary} font-medium`}>{order.time}</p>
                 </div>
                 <div>
                   <p className={currentTheme.textMuted}>Řidič:</p>
-                  <p className={currentTheme.textSecondary}>
+                  <p className={`${currentTheme.textSecondary} font-medium`}>
                     {order.driver || 'Nepřidělen'}
                   </p>
                 </div>
                 <div>
                   <p className={currentTheme.textMuted}>Cena:</p>
-                  <p className={`font-semibold text-green-600`}>{order.price} Kč</p>
+                  <p className={`font-semibold text-teal-600 text-lg`}>{order.price} Kč</p>
                 </div>
                 <div>
                   <p className={currentTheme.textMuted}>Provize:</p>
-                  <p className={currentTheme.textSecondary}>{order.commission} Kč</p>
+                  <p className={`${currentTheme.textSecondary} font-medium`}>{order.commission} Kč</p>
                 </div>
               </div>
 
-              {/* Timer for waiting orders */}
               {order.status === 'waiting' && !order.driver && timeRemaining && (
-                <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-orange-800">
+                    <span className="text-sm font-medium text-amber-800">
                       Automatické přidělení za:
                     </span>
-                    <span className={`font-mono font-bold text-lg ${
-                      timeRemaining.total < 300000 ? 'text-red-600' : 'text-orange-600'
+                    <span className={`font-mono font-bold text-xl ${
+                      timeRemaining.total < 300000 ? 'text-red-600' : 'text-amber-600'
                     }`}>
                       {String(timeRemaining.minutes).padStart(2, '0')}:
                       {String(timeRemaining.seconds).padStart(2, '0')}
                     </span>
                   </div>
                   {timeRemaining.total < 300000 && (
-                    <p className="text-xs text-red-600 mt-1">
+                    <p className="text-xs text-red-600 mt-2">
                       ⚠️ Méně než 5 minut do automatického přidělení!
                     </p>
                   )}
@@ -466,19 +481,18 @@ const TaxiAdminApp = () => {
             </div>
           </div>
 
-          {/* Action buttons */}
           {order.status === 'waiting' && !order.driver && (
-            <div className="mt-4 flex space-x-2">
+            <div className="mt-6 flex space-x-3">
               <button
                 onClick={() => {
                   setSelectedOrder(order);
                   setShowAssignModal(true);
                 }}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className={`flex-1 px-6 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors font-medium`}
               >
                 Přidělit řidiče
               </button>
-              <button className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+              <button className="px-6 py-4 border border-red-200 text-red-600 rounded-2xl hover:bg-red-50 transition-colors font-medium">
                 Zrušit
               </button>
             </div>
@@ -488,12 +502,12 @@ const TaxiAdminApp = () => {
     };
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex justify-between items-center">
-          <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Správa objednávek</h2>
+          <h2 className={`text-3xl font-bold ${currentTheme.textPrimary}`}>Správa objednávek</h2>
           <button 
             onClick={() => setShowQuickOrder(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className={`px-6 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors flex items-center space-x-3 font-medium`}
           >
             <Plus size={20} />
             <span>Nová objednávka</span>
@@ -501,43 +515,49 @@ const TaxiAdminApp = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className={`${currentTheme.cardBg} p-4 rounded-lg ${currentTheme.shadow}`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className={`${currentTheme.cardBg} p-6 rounded-3xl shadow-sm`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm ${currentTheme.textMuted}`}>Čekající</p>
-                <p className={`text-2xl font-bold text-yellow-600`}>{waitingOrders.length}</p>
+                <p className={`text-sm ${currentTheme.textMuted} mb-2`}>Čekající</p>
+                <p className={`text-3xl font-bold text-amber-600`}>{waitingOrders.length}</p>
               </div>
-              <Clock className="text-yellow-600" size={24} />
+              <div className="p-4 bg-amber-100 rounded-2xl">
+                <Clock className="text-amber-600" size={24} />
+              </div>
             </div>
           </div>
-          <div className={`${currentTheme.cardBg} p-4 rounded-lg ${currentTheme.shadow}`}>
+          <div className={`${currentTheme.cardBg} p-6 rounded-3xl shadow-sm`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm ${currentTheme.textMuted}`}>V průběhu</p>
-                <p className={`text-2xl font-bold text-blue-600`}>{inProgressOrders.length}</p>
+                <p className={`text-sm ${currentTheme.textMuted} mb-2`}>V průběhu</p>
+                <p className={`text-3xl font-bold text-teal-600`}>{inProgressOrders.length}</p>
               </div>
-              <Route className="text-blue-600" size={24} />
+              <div className="p-4 bg-teal-100 rounded-2xl">
+                <Route className="text-teal-600" size={24} />
+              </div>
             </div>
           </div>
-          <div className={`${currentTheme.cardBg} p-4 rounded-lg ${currentTheme.shadow}`}>
+          <div className={`${currentTheme.cardBg} p-6 rounded-3xl shadow-sm`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm ${currentTheme.textMuted}`}>Dokončené</p>
-                <p className={`text-2xl font-bold text-green-600`}>{completedOrders.length}</p>
+                <p className={`text-sm ${currentTheme.textMuted} mb-2`}>Dokončené</p>
+                <p className={`text-3xl font-bold text-green-600`}>{completedOrders.length}</p>
               </div>
-              <CheckCircle className="text-green-600" size={24} />
+              <div className="p-4 bg-green-100 rounded-2xl">
+                <CheckCircle className="text-green-600" size={24} />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Waiting Orders - Priority */}
+        {/* Waiting Orders */}
         {waitingOrders.length > 0 && (
           <div>
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-yellow-600`}>
+            <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6 text-amber-600`}>
               🕐 Čekající objednávky ({waitingOrders.length})
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {waitingOrders.map(order => (
                 <OrderCard key={order.id} order={order} />
               ))}
@@ -548,10 +568,10 @@ const TaxiAdminApp = () => {
         {/* In Progress Orders */}
         {inProgressOrders.length > 0 && (
           <div>
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-blue-600`}>
+            <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6 text-teal-600`}>
               🚗 Objednávky v průběhu ({inProgressOrders.length})
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {inProgressOrders.map(order => (
                 <OrderCard key={order.id} order={order} />
               ))}
@@ -562,16 +582,16 @@ const TaxiAdminApp = () => {
         {/* Completed Orders */}
         {completedOrders.length > 0 && (
           <div>
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-green-600`}>
+            <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6 text-green-600`}>
               ✅ Dokončené objednávky ({completedOrders.length})
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {completedOrders.slice(0, 5).map(order => (
                 <OrderCard key={order.id} order={order} />
               ))}
             </div>
             {completedOrders.length > 5 && (
-              <button className="w-full p-3 text-center border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400">
+              <button className="w-full p-4 text-center border-2 border-dashed border-gray-200 rounded-2xl text-gray-500 hover:border-gray-300">
                 Zobrazit dalších {completedOrders.length - 5} objednávek
               </button>
             )}
@@ -579,17 +599,17 @@ const TaxiAdminApp = () => {
         )}
 
         {activeOrders.length === 0 && (
-          <div className={`${currentTheme.cardBg} p-8 rounded-xl ${currentTheme.shadow} text-center`}>
-            <Route className={`mx-auto mb-4 ${currentTheme.textMuted}`} size={48} />
-            <h3 className={`text-lg font-semibold ${currentTheme.textPrimary} mb-2`}>
+          <div className={`${currentTheme.cardBg} p-12 rounded-3xl shadow-sm text-center`}>
+            <Route className={`mx-auto mb-6 ${currentTheme.textMuted}`} size={64} />
+            <h3 className={`text-xl font-semibold ${currentTheme.textPrimary} mb-3`}>
               Žádné objednávky
             </h3>
-            <p className={`${currentTheme.textMuted} mb-4`}>
+            <p className={`${currentTheme.textMuted} mb-6`}>
               Zatím nejsou žádné aktivní objednávky.
             </p>
             <button 
               onClick={() => setShowQuickOrder(true)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className={`px-8 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors font-medium`}
             >
               Vytvořit první objednávku
             </button>
@@ -601,23 +621,23 @@ const TaxiAdminApp = () => {
 
   // Dashboard Screen
   const DashboardScreen = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Online řidiči', value: drivers.filter(d => d.status === 'online').length, icon: Users, color: 'green' },
+          { label: 'Online řidiči', value: drivers.filter(d => d.status === 'online').length, icon: Users, color: 'teal' },
           { label: 'Aktivní jízdy', value: activeOrders.filter(o => o.status === 'in_progress').length, icon: Route, color: 'blue' },
-          { label: 'Čekající objednávky', value: activeOrders.filter(o => o.status === 'waiting').length, icon: Clock, color: 'yellow' },
-          { label: 'Dnes ukončeno', value: activeOrders.filter(o => o.status === 'completed').length, icon: CheckCircle, color: 'purple' }
+          { label: 'Čekající objednávky', value: activeOrders.filter(o => o.status === 'waiting').length, icon: Clock, color: 'amber' },
+          { label: 'Dnes ukončeno', value: activeOrders.filter(o => o.status === 'completed').length, icon: CheckCircle, color: 'green' }
         ].map((stat, index) => (
-          <div key={index} className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
+          <div key={index} className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm ${currentTheme.textMuted}`}>{stat.label}</p>
-                <p className={`text-3xl font-bold ${currentTheme.textPrimary} mt-1`}>{stat.value}</p>
+                <p className={`text-sm ${currentTheme.textMuted} mb-2`}>{stat.label}</p>
+                <p className={`text-4xl font-bold ${currentTheme.textPrimary} mt-2`}>{stat.value}</p>
               </div>
-              <div className={`p-3 bg-${stat.color}-100 rounded-lg`}>
-                <stat.icon className={`text-${stat.color}-600`} size={24} />
+              <div className={`p-4 bg-${stat.color}-100 rounded-2xl`}>
+                <stat.icon className={`text-${stat.color}-600`} size={32} />
               </div>
             </div>
           </div>
@@ -625,58 +645,58 @@ const TaxiAdminApp = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-        <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4`}>Rychlé akce</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
+        <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6`}>Rychlé akce</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <button 
             onClick={() => setShowQuickOrder(true)}
-            className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex flex-col items-center"
+            className={`p-6 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors flex flex-col items-center`}
           >
-            <Plus size={24} className="mb-2" />
-            <span className="text-sm font-medium">Nová objednávka</span>
+            <Plus size={32} className="mb-3" />
+            <span className="font-medium">Nová objednávka</span>
           </button>
-          <button className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex flex-col items-center">
-            <UserCheck size={24} className="mb-2" />
-            <span className="text-sm font-medium">Schválit řidiče</span>
+          <button className="p-6 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors flex flex-col items-center">
+            <UserCheck size={32} className="mb-3" />
+            <span className="font-medium">Schválit řidiče</span>
           </button>
-          <button className="p-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex flex-col items-center">
-            <MessageSquare size={24} className="mb-2" />
-            <span className="text-sm font-medium">Poslat zprávu</span>
+          <button className="p-6 bg-purple-500 text-white rounded-2xl hover:bg-purple-600 transition-colors flex flex-col items-center">
+            <MessageSquare size={32} className="mb-3" />
+            <span className="font-medium">Poslat zprávu</span>
           </button>
-          <button className="p-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex flex-col items-center">
-            <BarChart3 size={24} className="mb-2" />
-            <span className="text-sm font-medium">Statistiky</span>
+          <button className="p-6 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition-colors flex flex-col items-center">
+            <BarChart3 size={32} className="mb-3" />
+            <span className="font-medium">Statistiky</span>
           </button>
         </div>
       </div>
 
       {/* Recent Orders */}
-      <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className={`text-lg font-bold ${currentTheme.textPrimary}`}>Aktuální objednávky</h3>
+      <div className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className={`text-xl font-bold ${currentTheme.textPrimary}`}>Aktuální objednávky</h3>
           <button 
             onClick={() => setCurrentScreen('orders')}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            className={`${currentTheme.primaryText} hover:text-teal-700 font-medium`}
           >
             Zobrazit vše
           </button>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {activeOrders.slice(0, 5).map(order => (
-            <div key={order.id} className={`p-4 border rounded-lg ${currentTheme.border} ${currentTheme.hover}`}>
+            <div key={order.id} className={`p-6 border rounded-2xl ${currentTheme.border} ${currentTheme.hover} transition-colors`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className={`font-semibold ${currentTheme.textPrimary}`}>
+                  <p className={`font-semibold ${currentTheme.textPrimary} mb-1`}>
                     {order.hotel} → {order.destination}
                   </p>
                   <p className={`text-sm ${currentTheme.textSecondary}`}>
                     {order.driver ? `Řidič: ${order.driver}` : 'Čeká na řidiče'} • {order.time}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    order.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' :
-                    order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                <div className="flex items-center space-x-3">
+                  <span className={`px-3 py-2 rounded-full text-xs font-medium ${
+                    order.status === 'waiting' ? 'bg-amber-100 text-amber-800' :
+                    order.status === 'in_progress' ? 'bg-teal-100 text-teal-800' :
                     'bg-green-100 text-green-800'
                   }`}>
                     {order.status === 'waiting' ? 'Čeká' : 
@@ -691,22 +711,21 @@ const TaxiAdminApp = () => {
     </div>
   );
 
-  // AKTUALIZOVANÝ Drivers Screen s responsywnimi poprawkami
+  // Drivers Screen
   const DriversScreen = () => {
-    // Komponenta pro desktop tabulku
     const DesktopTable = () => (
       <div className="hidden md:block">
-        <div className={`${currentTheme.cardBg} rounded-xl ${currentTheme.shadow} overflow-hidden`}>
-          <div className="p-6 border-b border-gray-200">
+        <div className={`${currentTheme.cardBg} rounded-3xl shadow-sm overflow-hidden`}>
+          <div className="p-8 border-b border-gray-100">
             <div className="flex justify-between items-center">
-              <h3 className={`text-lg font-bold ${currentTheme.textPrimary}`}>Všichni řidiči</h3>
-              <div className="flex space-x-2">
-                <button className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+              <h3 className={`text-xl font-bold ${currentTheme.textPrimary}`}>Všichni řidiči</h3>
+              <div className="flex space-x-3">
+                <span className="px-4 py-2 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">
                   Online ({drivers.filter(d => d.status === 'online').length})
-                </button>
-                <button className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                </span>
+                <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
                   Celkem ({drivers.length})
-                </button>
+                </span>
               </div>
             </div>
           </div>
@@ -715,28 +734,48 @@ const TaxiAdminApp = () => {
             <table className="w-full">
               <thead className={`${currentTheme.bg}`}>
                 <tr>
-                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Řidič</th>
-                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Vozidlo</th>
-                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Status</th>
-                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Typ</th>
-                  <th className={`text-left p-4 ${currentTheme.textSecondary} font-medium`}>Akce</th>
+                  <th className={`text-left p-6 ${currentTheme.textSecondary} font-medium`}>Řidič</th>
+                  <th className={`text-left p-6 ${currentTheme.textSecondary} font-medium`}>Vozidlo</th>
+                  <th className={`text-left p-6 ${currentTheme.textSecondary} font-medium`}>Status</th>
+                  <th className={`text-left p-6 ${currentTheme.textSecondary} font-medium`}>Typ</th>
+                  <th className={`text-left p-6 ${currentTheme.textSecondary} font-medium`}>Akce</th>
                 </tr>
               </thead>
               <tbody>
                 {drivers.filter(d => d.approved).map(driver => (
                   <tr key={driver.id} className={`border-t ${currentTheme.border} ${currentTheme.hover}`}>
-                    <td className="p-4">
-                      <div>
-                        <p className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</p>
-                        <p className={`text-sm ${currentTheme.textSecondary}`}>{driver.phone}</p>
+                    <td className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-teal-400 rounded-full flex items-center justify-center">
+                          <span className="text-white font-semibold">{driver.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <p className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</p>
+                          <p className={`text-sm ${currentTheme.textSecondary}`}>{driver.phone}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="p-4">
-                      <p className={`${currentTheme.textPrimary}`}>{driver.car}</p>
+                    <td className="p-6">
+                      <div className="flex items-center space-x-3">
+                        {/* Car image placeholder */}
+                        <div className="w-16 h-10 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                          <img 
+                            src={driver.carImage} 
+                            alt={driver.car}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <Car size={20} className="text-gray-400" style={{ display: 'none' }} />
+                        </div>
+                        <p className={`${currentTheme.textPrimary} font-medium`}>{driver.car}</p>
+                      </div>
                     </td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        driver.status === 'online' ? 'bg-green-100 text-green-800' :
+                    <td className="p-6">
+                      <span className={`px-3 py-2 rounded-full text-xs font-medium ${
+                        driver.status === 'online' ? 'bg-teal-100 text-teal-800' :
                         driver.status === 'busy' ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
@@ -744,22 +783,22 @@ const TaxiAdminApp = () => {
                          driver.status === 'busy' ? 'Zaneprázdněn' : 'Offline'}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                    <td className="p-6">
+                      <span className={`px-3 py-2 rounded-full text-xs font-medium ${
+                        driver.type === 'luxury-van' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                       }`}>
-                        {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
+                        {driver.type === 'luxury-van' ? 'Luxury Van' : 'Standard'}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-6">
                       <div className="flex space-x-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded">
+                        <button className="p-3 text-teal-600 hover:bg-teal-100 rounded-xl transition-colors">
                           <Edit size={16} />
                         </button>
-                        <button className="p-2 text-orange-600 hover:bg-orange-100 rounded">
+                        <button className="p-3 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors">
                           <Ban size={16} />
                         </button>
-                        <button className="p-2 text-green-600 hover:bg-green-100 rounded">
+                        <button className="p-3 text-green-600 hover:bg-green-100 rounded-xl transition-colors">
                           <MessageSquare size={16} />
                         </button>
                       </div>
@@ -773,29 +812,26 @@ const TaxiAdminApp = () => {
       </div>
     );
 
-    // Komponenta pro mobilní karty
     const MobileCards = () => (
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-6">
         {drivers.filter(d => d.approved).map(driver => (
-          <div key={driver.id} className={`${currentTheme.cardBg} border ${currentTheme.border} rounded-lg p-4 ${currentTheme.shadow}`}>
-            {/* Hlavička karty */}
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">{driver.name.charAt(0)}</span>
+          <div key={driver.id} className={`${currentTheme.cardBg} border ${currentTheme.border} rounded-2xl p-6 shadow-sm`}>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-teal-400 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold">{driver.name.charAt(0)}</span>
                 </div>
                 <div>
                   <h4 className={`font-semibold ${currentTheme.textPrimary}`}>{driver.name}</h4>
-                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                  <div className="flex items-center space-x-1 text-sm text-gray-600 mt-1">
                     <Phone size={12} />
                     <span>{driver.phone}</span>
                   </div>
                 </div>
               </div>
               
-              {/* Status badge */}
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                driver.status === 'online' ? 'bg-green-100 text-green-800' :
+              <span className={`px-3 py-2 rounded-full text-xs font-medium ${
+                driver.status === 'online' ? 'bg-teal-100 text-teal-800' :
                 driver.status === 'busy' ? 'bg-blue-100 text-blue-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
@@ -804,30 +840,40 @@ const TaxiAdminApp = () => {
               </span>
             </div>
 
-            {/* Detaily */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="flex items-center space-x-2">
-                <Car size={14} className="text-gray-400" />
-                <span className={`text-sm ${currentTheme.textSecondary}`}>{driver.car}</span>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="flex items-center space-x-3">
+                {/* Car image placeholder */}
+                <div className="w-12 h-8 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img 
+                    src={driver.carImage} 
+                    alt={driver.car}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <Car size={14} className="text-gray-400" style={{ display: 'none' }} />
+                </div>
+                <span className={`text-sm ${currentTheme.textSecondary} font-medium`}>{driver.car}</span>
               </div>
               <div className="flex justify-end">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  driver.type === 'minivan' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  driver.type === 'luxury-van' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                 }`}>
-                  {driver.type === 'minivan' ? 'Minivan' : 'Standard'}
+                  {driver.type === 'luxury-van' ? 'Luxury Van' : 'Standard'}
                 </span>
               </div>
             </div>
 
-            {/* Akce */}
-            <div className="flex justify-end space-x-2">
-              <button className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors">
+            <div className="flex justify-end space-x-3">
+              <button className="p-3 text-teal-600 hover:bg-teal-100 rounded-xl transition-colors">
                 <Edit size={16} />
               </button>
-              <button className="p-2 text-orange-600 hover:bg-orange-100 rounded transition-colors">
+              <button className="p-3 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors">
                 <Ban size={16} />
               </button>
-              <button className="p-2 text-green-600 hover:bg-green-100 rounded transition-colors">
+              <button className="p-3 text-green-600 hover:bg-green-100 rounded-xl transition-colors">
                 <MessageSquare size={16} />
               </button>
             </div>
@@ -837,22 +883,22 @@ const TaxiAdminApp = () => {
     );
 
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-          <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Správa řidičů</h2>
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+      <div className="space-y-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+          <h2 className={`text-3xl font-bold ${currentTheme.textPrimary}`}>Správa řidičů</h2>
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <div className="relative">
-              <Search className={`absolute left-3 top-3 ${currentTheme.textMuted}`} size={20} />
+              <Search className={`absolute left-4 top-4 ${currentTheme.textMuted}`} size={20} />
               <input
                 type="text"
                 placeholder="Hledat řidiče..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-10 pr-4 py-2 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary} w-full sm:w-auto`}
+                className={`pl-12 pr-6 py-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} w-full sm:w-auto text-lg`}
               />
             </div>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
-              <Plus size={20} className="mr-2" />
+            <button className={`px-6 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} transition-colors flex items-center justify-center font-medium`}>
+              <Plus size={20} className="mr-3" />
               <span>Přidat řidiče</span>
             </button>
           </div>
@@ -860,27 +906,51 @@ const TaxiAdminApp = () => {
 
         {/* Pending Approvals */}
         {drivers.some(d => !d.approved) && (
-          <div className={`${currentTheme.cardBg} p-4 sm:p-6 rounded-xl ${currentTheme.shadow}`}>
-            <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4 text-orange-600`}>
+          <div className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
+            <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6 text-orange-600`}>
               Čekající schválení ({drivers.filter(d => !d.approved).length})
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {drivers.filter(d => !d.approved).map(driver => (
-                <div key={driver.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 bg-orange-50 rounded-lg space-y-3 sm:space-y-0">
-                  <div>
-                    <p className="font-semibold">{driver.name}</p>
-                    <p className="text-sm text-gray-600">{driver.phone} • {driver.car}</p>
+                <div key={driver.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-6 bg-orange-50 rounded-2xl space-y-4 sm:space-y-0">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">{driver.name.charAt(0)}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div>
+                        <p className="font-semibold">{driver.name}</p>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <span>{driver.phone}</span>
+                          <span>•</span>
+                          <span>{driver.car}</span>
+                        </div>
+                      </div>
+                      {/* Car image placeholder */}
+                      <div className="w-12 h-8 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden ml-3">
+                        <img 
+                          src={driver.carImage} 
+                          alt={driver.car}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <Car size={14} className="text-gray-400" style={{ display: 'none' }} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <button 
                       onClick={() => {
                         setDrivers(drivers.map(d => d.id === driver.id ? {...d, approved: true} : d));
                       }}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex-1 sm:flex-initial"
+                      className="px-6 py-3 bg-green-600 text-white rounded-2xl hover:bg-green-700 flex-1 sm:flex-initial font-medium"
                     >
                       Schválit
                     </button>
-                    <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex-1 sm:flex-initial">
+                    <button className="px-6 py-3 bg-red-600 text-white rounded-2xl hover:bg-red-700 flex-1 sm:flex-initial font-medium">
                       Odmítnout
                     </button>
                   </div>
@@ -890,10 +960,7 @@ const TaxiAdminApp = () => {
           </div>
         )}
 
-        {/* Desktop Table */}
         <DesktopTable />
-        
-        {/* Mobile Cards */}
         <MobileCards />
       </div>
     );
@@ -901,110 +968,86 @@ const TaxiAdminApp = () => {
 
   // Settings Screen  
   const SettingsScreen = () => (
-    <div className="space-y-6">
-      <h2 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Nastavení systému</h2>
+    <div className="space-y-8">
+      <h2 className={`text-3xl font-bold ${currentTheme.textPrimary}`}>Nastavení systému</h2>
       
-      {/* Commission Settings */}
-      <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-        <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4`}>Nastavení provizí</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
+        <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6`}>Nastavení provizí</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Provize hotelu (%)
             </label>
             <input 
               type="number" 
               defaultValue="15"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Provize řidiče (%)
             </label>
             <input 
               type="number" 
               defaultValue="75"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Provize administrátora (%)
             </label>
             <input 
               type="number" 
               defaultValue="10"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Dodatečná provize (%)
             </label>
             <input 
               type="number" 
               defaultValue="0"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
         </div>
       </div>
 
-      {/* Timing Settings */}
-      <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-        <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4`}>Časové nastavení</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={`${currentTheme.cardBg} p-8 rounded-3xl shadow-sm`}>
+        <h3 className={`text-xl font-bold ${currentTheme.textPrimary} mb-6`}>Časové nastavení</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Doba pro přijetí objednávky (sekundy)
             </label>
             <input 
               type="number" 
               defaultValue="15"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
           <div>
-            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-2`}>
+            <label className={`block text-sm font-medium ${currentTheme.textSecondary} mb-3`}>
               Prioritní doba pro VIP řidiče (sekundy)
             </label>
             <input 
               type="number" 
               defaultValue="15"
-              className={`w-full p-3 rounded-lg border ${currentTheme.input} ${currentTheme.textPrimary}`}
+              className={`w-full p-4 rounded-2xl border ${currentTheme.input} ${currentTheme.textPrimary} text-lg`}
             />
           </div>
         </div>
       </div>
 
-      {/* Driver Priority */}
-      <div className={`${currentTheme.cardBg} p-6 rounded-xl ${currentTheme.shadow}`}>
-        <h3 className={`text-lg font-bold ${currentTheme.textPrimary} mb-4`}>Pořadí řidičů</h3>
-        <p className={`text-sm ${currentTheme.textSecondary} mb-4`}>
-          Určete, v jakém pořadí se budou objednávky nabízet řidičům
-        </p>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 border rounded-lg">
-            <span>VIP řidiči (prvních 15 sekund)</span>
-            <button className="text-blue-600 hover:text-blue-700">
-              <Edit size={16} />
-            </button>
-          </div>
-          <div className="flex items-center justify-between p-3 border rounded-lg">
-            <span>Standardní řidiči</span>
-            <button className="text-blue-600 hover:text-blue-700">
-              <Edit size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
-        <button className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+      <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+        <button className="px-8 py-4 border border-gray-200 rounded-2xl hover:bg-gray-50 font-medium">
           Zrušit
         </button>
-        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button className={`px-8 py-4 ${currentTheme.primary} text-white rounded-2xl ${currentTheme.primaryHover} font-medium`}>
           Uložit změny
         </button>
       </div>
@@ -1014,39 +1057,38 @@ const TaxiAdminApp = () => {
   return (
     <div className={`min-h-screen ${currentTheme.bg} transition-colors duration-200`}>
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-64 ${currentTheme.sidebarBg} ${currentTheme.shadow} transform transition-transform duration-200 z-30 ${
+      <div className={`fixed left-0 top-0 h-full w-72 ${currentTheme.sidebarBg} shadow-sm transform transition-transform duration-200 z-30 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className={`text-xl font-bold ${currentTheme.textPrimary}`}>Taxi Admin</h1>
+        <div className="p-8">
+          <div className="flex items-center justify-between mb-12">
+            <h1 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Taxi Admin</h1>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden"
+              className="lg:hidden p-2 rounded-full hover:bg-gray-100"
             >
               <X className={currentTheme.textMuted} size={20} />
             </button>
           </div>
 
-          <nav className="space-y-2">
+          <nav className="space-y-3">
             {menuItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => {
                   setCurrentScreen(item.id);
-                  // Schovat menu na mobile po výběru - používáme matchMedia pro lepší kompatibilitu
                   if (typeof window !== 'undefined' && !window.matchMedia('(min-width: 1024px)').matches) {
                     setSidebarOpen(false);
                   }
                 }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-200 ${
                   currentScreen === item.id 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : `${currentTheme.textSecondary} ${currentTheme.hover}`
+                    ? 'bg-teal-100 text-teal-700 font-medium' 
+                    : `${currentTheme.textSecondary} ${currentTheme.hover} font-medium`
                 }`}
               >
                 <item.icon size={20} />
-                <span className="font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
@@ -1054,50 +1096,49 @@ const TaxiAdminApp = () => {
       </div>
 
       {/* Main Content */}
-      <div className={`transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <div className={`transition-all duration-200 ${sidebarOpen ? 'ml-72' : 'ml-0'}`}>
         {/* Top Bar */}
-        <div className={`${currentTheme.cardBg} ${currentTheme.shadow} px-6 py-4 flex justify-between items-center`}>
-          <div className="flex items-center space-x-4">
+        <div className={`${currentTheme.cardBg} shadow-sm px-8 py-6 flex justify-between items-center`}>
+          <div className="flex items-center space-x-6">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className=""
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <Menu className={currentTheme.textMuted} size={20} />
             </button>
-            <h2 className={`text-lg font-semibold ${currentTheme.textPrimary} capitalize`}>
+            <h2 className={`text-xl font-semibold ${currentTheme.textPrimary} capitalize`}>
               {menuItems.find(item => item.id === currentScreen)?.label}
             </h2>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <div className="flex items-center space-x-6">
+            <button className="relative p-3 hover:bg-gray-100 rounded-2xl transition-colors">
               <Bell className={currentTheme.textMuted} size={20} />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </button>
             
             <button 
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-3 hover:bg-gray-100 rounded-2xl transition-colors"
             >
               {darkMode ? <Sun className={currentTheme.textMuted} size={20} /> : <Moon className={currentTheme.textMuted} size={20} />}
             </button>
             
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">A</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-teal-400 rounded-full flex items-center justify-center">
+                <span className="text-white font-semibold">A</span>
               </div>
-              <span className={`text-sm font-medium ${currentTheme.textPrimary}`}>Admin</span>
+              <span className={`font-medium ${currentTheme.textPrimary}`}>Admin</span>
             </div>
           </div>
         </div>
 
         {/* Page Content */}
-        <div className="p-6">
+        <div className="p-8">
           {currentScreen === 'dashboard' && <DashboardScreen />}
           {currentScreen === 'drivers' && <DriversScreen />}
           {currentScreen === 'orders' && <OrdersScreen />}
           {currentScreen === 'settings' && <SettingsScreen />}
-          {/* Add other screens here */}
         </div>
       </div>
 
@@ -1117,3 +1158,4 @@ const TaxiAdminApp = () => {
 };
 
 export default TaxiAdminApp;
+
