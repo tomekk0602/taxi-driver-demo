@@ -203,106 +203,108 @@ const TaxiAdminApp = () => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className={`${currentTheme.cardBg} rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col p-8 shadow-2xl`}>
-          <div className="flex justify-between items-center mb-8 flex-shrink-0">
-            <h3 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Přidělit řidiče</h3>
-            <button 
-              onClick={() => setShowAssignModal(false)}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <X className={currentTheme.textMuted} size={24} />
-            </button>
-          </div>
+<div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div className={`${currentTheme.cardBg} rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col p-8 shadow-2xl`}>
+    <div className="flex justify-between items-center mb-8 flex-shrink-0">
+      <h3 className={`text-2xl font-bold ${currentTheme.textPrimary}`}>Přidělit řidiče</h3>
+      <button 
+        onClick={() => setShowAssignModal(false)}
+        className={`p-2 rounded-full hover:${darkMode ? 'bg-gray-700' : 'bg-gray-100'} transition-colors`}
+      >
+        <X className={currentTheme.textMuted} size={24} />
+      </button>
+    </div>
 
-          <div className="mb-8 p-6 bg-teal-50 rounded-2xl border border-teal-100 flex-shrink-0">
-            <p className={`text-sm font-medium ${currentTheme.textSecondary} mb-2`}>Objednávka:</p>
-            <p className={`text-xl font-bold ${currentTheme.textPrimary}`}>
-              {selectedOrder.hotel} → {selectedOrder.destination}
-            </p>
-            <div className="flex justify-between mt-4 text-sm">
-              <span className={currentTheme.textMuted}>Cena: <span className="font-semibold text-teal-600">{selectedOrder.price} Kč</span></span>
-              <span className={currentTheme.textMuted}>Provize: <span className="font-semibold">{selectedOrder.commission} Kč</span></span>
-            </div>
-          </div>
+    <div className={`mb-8 p-6 ${darkMode ? 'bg-teal-900/30' : 'bg-teal-50'} rounded-2xl border ${darkMode ? 'border-teal-800' : 'border-teal-100'} flex-shrink-0`}>
+      <p className={`text-sm font-medium ${currentTheme.textSecondary} mb-2`}>Objednávka:</p>
+      <p className={`text-xl font-bold ${currentTheme.textPrimary}`}>
+        {selectedOrder.hotel} → {selectedOrder.destination}
+      </p>
+      <div className="flex justify-between mt-4 text-sm">
+        <span className={currentTheme.textMuted}>Cena: <span className={`font-semibold ${darkMode ? 'text-teal-400' : 'text-teal-600'}`}>{selectedOrder.price} Kč</span></span>
+        <span className={currentTheme.textMuted}>Provize: <span className={`font-semibold ${currentTheme.textPrimary}`}>{selectedOrder.commission} Kč</span></span>
+      </div>
+    </div>
 
-          <div className="flex flex-col flex-1 min-h-0">
-            <div className="flex items-center justify-between mb-6 flex-shrink-0">
-              <p className={`text-lg font-semibold ${currentTheme.textSecondary}`}>
-                Dostupní řidiči
-              </p>
-              <span className="px-4 py-2 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">
-                {availableDrivers.length} online
-              </span>
-            </div>
-            
-            {availableDrivers.length === 0 ? (
-              <div className="text-center py-12 flex-1 flex flex-col justify-center">
-                <Users className={`mx-auto mb-4 ${currentTheme.textMuted}`} size={48} />
-                <p className={`${currentTheme.textMuted} mb-2 text-lg`}>Žádní dostupní řidiči</p>
-                <p className="text-sm text-gray-400">Objednávka bude automaticky přidělena</p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(90vh - 350px)' }}>
-                <div className="space-y-4">
-                  {availableDrivers.map(driver => (
-                    <button
-                      key={driver.id}
-                      onClick={() => assignDriver(driver.name)}
-                      className={`w-full p-6 text-left rounded-2xl border-2 border-gray-100 hover:border-teal-300 hover:bg-teal-50 transition-all duration-200 group`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-4 mb-3">
-                            <div className="w-12 h-12 bg-teal-400 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-lg">{driver.name.charAt(0)}</span>
-                            </div>
-                            <div>
-                              <p className="font-semibold text-gray-900 group-hover:text-teal-700 text-lg">{driver.name}</p>
-                              <p className="text-sm text-gray-500">{driver.phone}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              {/* Car image placeholder */}
-                              <div className="w-12 h-8 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                                <img 
-                                  src={driver.carImage} 
-                                  alt={driver.car}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                  }}
-                                />
-                                <Car size={16} className="text-gray-400" style={{ display: 'none' }} />
-                              </div>
-                              <span className="text-sm text-gray-600 font-medium">{driver.car}</span>
-                            </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              driver.type === 'luxury-van' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {driver.type === 'luxury-van' ? 'Luxury Van' : 'Standard'}
-                            </span>
-                          </div>
-                        </div>
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex items-center justify-between mb-6 flex-shrink-0">
+        <p className={`text-lg font-semibold ${currentTheme.textSecondary}`}>
+          Dostupní řidiči
+        </p>
+        <span className={`px-4 py-2 ${darkMode ? 'bg-teal-800 text-teal-300' : 'bg-teal-100 text-teal-800'} rounded-full text-sm font-medium`}>
+          {availableDrivers.length} online
+        </span>
+      </div>
+      
+      {availableDrivers.length === 0 ? (
+        <div className="text-center py-12 flex-1 flex flex-col justify-center">
+          <Users className={`mx-auto mb-4 ${currentTheme.textMuted}`} size={48} />
+          <p className={`${currentTheme.textMuted} mb-2 text-lg`}>Žádní dostupní řidiči</p>
+          <p className={`text-sm ${currentTheme.textMuted}`}>Objednávka bude automaticky přidělena</p>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(90vh - 350px)' }}>
+          <div className="space-y-4">
+            {availableDrivers.map(driver => (
+              <button
+                key={driver.id}
+                onClick={() => assignDriver(driver.name)}
+                className={`w-full p-6 text-left rounded-2xl border-2 ${currentTheme.border} hover:${darkMode ? 'border-teal-600 bg-teal-900/20' : 'border-teal-300 bg-teal-50'} transition-all duration-200 group`}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-4 mb-3">
+                      <div className={`w-12 h-12 ${darkMode ? 'bg-teal-600' : 'bg-teal-400'} rounded-full flex items-center justify-center`}>
+                        <span className="text-white font-semibold text-lg">{driver.name.charAt(0)}</span>
                       </div>
-                    </button>
-                  ))}
+                      <div>
+                        <p className={`font-semibold ${currentTheme.textPrimary} group-hover:${darkMode ? 'text-teal-400' : 'text-teal-700'} text-lg`}>{driver.name}</p>
+                        <p className={`text-sm ${currentTheme.textSecondary}`}>{driver.phone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {/* Car image placeholder */}
+                        <div className={`w-12 h-8 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-lg flex items-center justify-center overflow-hidden`}>
+                          <img 
+                            src={driver.carImage} 
+                            alt={driver.car}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <Car size={16} className={currentTheme.textMuted} style={{ display: 'none' }} />
+                        </div>
+                        <span className={`text-sm ${currentTheme.textSecondary} font-medium`}>{driver.car}</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        driver.type === 'luxury-van' 
+                          ? darkMode ? 'bg-purple-900/50 text-purple-300' : 'bg-purple-100 text-purple-800'
+                          : darkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {driver.type === 'luxury-van' ? 'Luxury Van' : 'Standard'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 flex space-x-4 flex-shrink-0">
-            <button 
-              onClick={() => setShowAssignModal(false)}
-              className="flex-1 px-6 py-4 border border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-colors font-medium"
-            >
-              Zrušit
-            </button>
+              </button>
+            ))}
           </div>
         </div>
+      )}
+    </div>
+
+    <div className="mt-8 flex space-x-4 flex-shrink-0">
+      <button 
+        onClick={() => setShowAssignModal(false)}
+        className={`flex-1 px-6 py-4 border ${currentTheme.borderStrong} ${currentTheme.textSecondary} rounded-2xl hover:${darkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors font-medium`}
+      >
+        Zrušit
+      </button>
+    </div>
+  </div>
       </div>
     );
   };
